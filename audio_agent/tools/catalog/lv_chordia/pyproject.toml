@@ -1,0 +1,16 @@
+[project]
+name = "lv-chordia-tool"
+version = "1.0.0"
+description = "Large-vocabulary chord recognition using lv-chordia (ISMIR 2019) for the Audio Agent Framework"
+requires-python = ">=3.11"
+dependencies = [
+    "lv-chordia>=1.0.0",
+    "soundfile>=0.12.1",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["server", "model"]

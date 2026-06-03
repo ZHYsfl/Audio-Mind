@@ -1,0 +1,54 @@
+[project]
+name = "sortformer-diarization-tool"
+version = "1.0.0"
+description = "Speaker diarization using NVIDIA SortFormer for the Audio Agent Framework"
+requires-python = ">=3.11"
+authors = [
+    {name = "Audio Agent Team"}
+]
+
+# Dependencies for SortFormer speaker diarization
+# IMPORTANT: For GPU support, install PyTorch with CUDA 12.1 before installing this package
+dependencies = [
+    # Core dependencies
+    # NOTE: NeMo 2.7+ requires torch>=2.5 for nn.Buffer
+    "torch>=2.5.1",
+    "torchaudio>=2.5.1",
+
+    # Audio processing
+    "librosa>=0.10.0",
+    "soundfile>=0.12.0",
+
+    # Scientific computing
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+
+    # NeMo ASR toolkit (includes SortFormer)
+    "nemo_toolkit[asr]>=2.0.0",
+
+    # ModelScope for checkpoint download
+    "modelscope>=1.15.0",
+
+    # ML utilities
+    "huggingface-hub>=0.20.0",
+    "pyyaml>=6.0",
+    "tqdm>=4.66.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+# Build system (required by PEP 518)
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# setuptools configuration
+[tool.setuptools]
+py-modules = ["server"]
+
+# uv-specific configuration
+[tool.uv]
+# allow-prereleases = true

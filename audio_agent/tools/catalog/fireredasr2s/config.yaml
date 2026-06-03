@@ -1,0 +1,17 @@
+name: fireredasr2s
+description: "FireRedASR2S AED - SOTA ASR for Chinese (Mandarin + 20+ dialects), English, and code-switching with word-level timestamps"
+version: "1.0.0"
+
+server:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  env:
+    MODEL_PATH: "${AUDIO_AGENT_MODELS_DIR}/FireRedASR-AED-L"
+    DEVICE: "auto"
+    HF_HOME: "${AUDIO_AGENT_MODELS_DIR}"
+  startup_timeout_sec: 300
+
+resources:
+  memory_gb: 4
+  gpu: true
+  cpu_cores: 2

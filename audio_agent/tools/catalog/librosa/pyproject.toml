@@ -1,0 +1,17 @@
+[project]
+name = "librosa-tool"
+version = "2.0.0"
+description = "Librosa audio analysis tool for the Audio Agent Framework - Extended with 15+ music analysis tools"
+requires-python = ">=3.11"
+dependencies = [
+    "librosa==0.10.2.post1",
+    "scikit-learn>=1.3.0",
+    "soundfile>=0.12.1",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["server", "model"]

@@ -1,0 +1,273 @@
+name: librosa
+description: "Comprehensive librosa-based audio analysis and transformation tools (17 tools covering rhythm, timbre, harmony, segmentation, transformations, and utilities)."
+version: "2.0.0"
+author: "Audio Agent Team"
+tags: ["audio_analysis", "music", "beat", "tempo", "pitch", "timbre", "transformation"]
+
+server:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  env: {}
+  resources:
+    memory_gb: 2
+    gpu: false
+    cpu_cores: 2
+  lifecycle: "session"
+  startup_timeout_sec: 60
+
+tools:
+  # =========================================================================
+  # RHYTHM ANALYSIS (2 tools)
+  # =========================================================================
+  - name: "analyze_beats"
+    description: "Detect tempo (BPM) and beat positions in audio."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+        units:
+          type: string
+          enum: ["time", "frames"]
+          default: "time"
+          description: "Units for beat positions (time in seconds or frame indices)."
+      required: ["audio_path"]
+    
+  - name: "analyze_onsets"
+    description: "Detect note onset events and onset strength envelope."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+      required: ["audio_path"]
+  
+  # =========================================================================
+  # TIMBRE & SPECTRAL FEATURES (4 tools)
+  # =========================================================================
+  - name: "extract_mfcc"
+    description: "Extract Mel-frequency cepstral coefficients (MFCC) for timbre analysis."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+        n_mfcc:
+          type: integer
+          default: 13
+          description: "Number of MFCC coefficients to extract."
+      required: ["audio_path"]
+  
+  - name: "analyze_spectral_features"
+    description: "Extract comprehensive spectral features (centroid, bandwidth, rolloff, contrast, flatness)."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+      required: ["audio_path"]
+  
+  - name: "extract_rms_energy"
+    description: "Extract RMS energy (loudness) features and peak amplitude."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+      required: ["audio_path"]
+  
+  - name: "extract_zero_crossing_rate"
+    description: "Extract zero-crossing rate (ZCR) for texture/noisiness analysis."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+      required: ["audio_path"]
+  
+  # =========================================================================
+  # HARMONIC & PITCH ANALYSIS (4 tools)
+  # =========================================================================
+  - name: "extract_chroma"
+    description: "Extract chroma features (12-dimensional pitch class profile) for harmonic analysis."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+      required: ["audio_path"]
+  
+  - name: "detect_key"
+    description: "Estimate musical key (major/minor) from chroma features."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+      required: ["audio_path"]
+  
+  - name: "estimate_tuning"
+    description: "Estimate tuning deviation from A440 standard."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+      required: ["audio_path"]
+  
+  - name: "analyze_pitch"
+    description: "Extract pitch/F0 contour using pYIN algorithm."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+      required: ["audio_path"]
+  
+  # =========================================================================
+  # SEGMENTATION & STRUCTURE (2 tools)
+  # =========================================================================
+  - name: "segment_audio"
+    description: "Segment audio into non-silent regions (speech detection)."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+        top_db:
+          type: integer
+          default: 40
+          description: "Threshold in dB for silence detection."
+      required: ["audio_path"]
+  
+  # =========================================================================
+  # AUDIO TRANSFORMATION (4 tools)
+  # =========================================================================
+  - name: "apply_pitch_shift"
+    description: "Shift the pitch of audio by specified semitones. Returns path to transformed audio."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the input audio file."
+        n_steps:
+          type: number
+          description: "Number of semitones to shift (positive=up, negative=down)."
+        semitones:
+          type: number
+          description: "Alias for n_steps. Number of semitones to shift (positive=up, negative=down)."
+        output_path:
+          type: string
+          description: "Optional output path. If not provided, saved to temp directory."
+      required: ["audio_path"]
+    
+  - name: "apply_time_stretch"
+    description: "Time-stretch audio by a rate (1.0=original, 2.0=2x faster). Returns path to transformed audio."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the input audio file."
+        rate:
+          type: number
+          description: "Stretch factor. rate > 1 speeds up, rate < 1 slows down."
+        output_path:
+          type: string
+          description: "Optional output path. If not provided, saved to temp directory."
+      required: ["audio_path", "rate"]
+    
+  - name: "remove_silence"
+    description: "Remove leading and trailing silence from audio. Returns path to trimmed audio."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the input audio file."
+        top_db:
+          type: integer
+          default: 60
+          description: "Threshold in dB for silence detection."
+        output_path:
+          type: string
+          description: "Optional output path. If not provided, saved to temp directory."
+      required: ["audio_path"]
+    
+  - name: "separate_harmonic_percussive"
+    description: "Separate audio into harmonic (melodic) and percussive (rhythmic) components using HPSS."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the input audio file."
+        output_dir:
+          type: string
+          description: "Optional output directory. If not provided, saved to temp directory."
+      required: ["audio_path"]
+  
+  # =========================================================================
+  # UTILITY (1 tool)
+  # =========================================================================
+  - name: "get_audio_info"
+    description: "Get basic audio file information (duration, sample rate, channels, format)."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+      required: ["audio_path"]
+  
+  # =========================================================================
+  # HEALTHCHECK
+  # =========================================================================
+  - name: "healthcheck"
+    description: "Check whether the librosa runtime is available."
+    input_schema:
+      type: object
+      properties: {}
+
+notes: |
+  Comprehensive librosa-based audio analysis and transformation tools (16 tools):
+  
+  Rhythm Analysis (2): analyze_beats, analyze_onsets
+  Timbre & Spectral (4): extract_mfcc, analyze_spectral_features, extract_rms_energy, extract_zcr
+  Harmonic Analysis (4): extract_chroma, detect_key, estimate_tuning, analyze_pitch
+  Segmentation (1): segment_audio
+  Transformations (4): apply_pitch_shift, apply_time_stretch, remove_silence, separate_harmonic_percussive
+  Utility (1): get_audio_info
+  
+  OUTPUT FORMAT CONVENTION:
+  Analysis tools return structured data (JSON) without file paths.
+  
+  Transformation tools return audio files with this format:
+  {
+    "output_path": "/path/to/output.wav",     // Primary output file
+    "original_duration": 120.5,                // Original duration in seconds
+    "new_duration": 120.5,                     // New duration (may differ for time_stretch)
+    "parameters": {"n_steps": 3},              // Transformation parameters used
+    "description": "Audio transformed with pitch_shift"
+  }
+  
+  For harmonic/percussive separation (multi-output):
+  {
+    "output_path": "/path/to/harmonic.wav",   // Harmonic/melodic component
+    "percussive_path": "/path/to/percussive.wav",  // Percussive/rhythmic component
+    "harmonic_ratio": 0.65,                    // Energy ratio
+    "percussive_ratio": 0.35,
+    "description": "Audio separated into harmonic and percussive components"
+  }

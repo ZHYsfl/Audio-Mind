@@ -1,0 +1,44 @@
+name: wespeaker
+description: "Speaker verification using WeSpeaker English model - computes similarity scores between two audio files to verify if they are from the same speaker"
+version: "1.0.0"
+author: "Audio Agent Team"
+tags: ["speaker_verification", "speaker_recognition", "biometric", "wespeaker"]
+
+# MCP Server Configuration
+server:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  
+  env:
+    WESPEAKER_HOME: "${AUDIO_AGENT_MODELS_DIR}/wespeaker"
+    WESPEAKER_MODEL: "english"
+    WESPEAKER_DEVICE: "auto"
+  
+  resources:
+    memory_gb: 4
+    gpu: true
+    cpu_cores: 2
+  
+  lifecycle: "session"
+  startup_timeout_sec: 300  # May need time for first model download
+
+# Tool definitions
+tools:
+  - name: "speaker_verify"
+    description: "Verify if two audio files are from the same speaker. Returns a similarity score between 0 and 1 (higher = more likely same speaker)."
+    input_schema:
+      type: object
+      properties:
+        enrollment_audio:
+          type: string
+          description: "Path to enrollment/reference audio file"
+        trial_audio:
+          type: string
+          description: "Path to trial/test audio file"
+      required: ["enrollment_audio", "trial_audio"]
+  
+  - name: "healthcheck"
+    description: "Check if the WeSpeaker model is loaded and ready"
+    input_schema:
+      type: object
+      properties: {}

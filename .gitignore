@@ -1,0 +1,114 @@
+# macOS
+.DS_Store
+._*
+
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Jupyter / notebooks
+.ipynb_checkpoints/
+
+# IDE / editor settings
+.idea/
+.vscode/
+
+# Logs / temp files
+*.log
+*.tmp
+*.temp
+condaenv.*.requirements.txt
+
+# Local model / dataset caches
+.cache/
+.hf_cache/
+.artifacts/
+
+# Downloaded models (pre-downloaded to avoid re-downloading on every login)
+models/
+
+# Per-tool isolated environments (uv .venv, conda env, etc.)
+audio_agent/tools/catalog/*/.venv/
+audio_agent/tools/catalog/*/.conda_env/
+
+# Demo / runtime artifacts
+output.wav
+output/
+logs/
+assets/
+audio_agent/tools/catalog/diarizen/diarizen_src/
+
+# Server-specific files (do not push to remote)
+tool_preparation/SERVER_SPECIFIC_*.md
+
+# MCP Tool artifacts - auto-generated during tool execution
+/audio_agent/tools/catalog/*/.artifacts/
+/audio_agent/tools/catalog/*/.artifact/
+/audio_agent/tools/catalog/*/artifacts/
+/audio_agent/tools/catalog/*/artifact/
+
+# Runtime logs
+nohup.out
+nohup_benchmark.out
+
+# Temporary files
+.efc_*
+=0.*
+
+# Reference/analysis artifacts
+ref_flow/
+
+# Prompt artifacts
+audio_agent/prompts/reports.yaml
+audio_agent/prompts/tool_use_guide.md
+
+# Runtime scripts
+sample_run.sh
+
+# Local-only helper scripts (not part of the framework). Use scripts/ as a
+# drop zone for deployment-specific wrappers and verification harnesses.
+scripts/
+
+# Benchmarking workflows (MMAU / MMAR / etc.) are local-only — they depend
+# on dataset paths and machine-specific runtime conventions that don't
+# belong in the shared repo. Keep your local copy under benchmarking/.
+benchmarking/
+
+# Symlink to external models directory
+models
+
+# Zip archives
+*.zip
+
+# Local Claude Code workspace (worktrees, plans, transcripts)
+.claude/
+
+# Local scratch space for sample renders, debug dumps, etc.
+temp/
+
+# Paper manuscript + local analysis artifacts (the paper is published on arXiv)
+paper/
+benchmark_meta/
+reasoning_quality_evaluation/

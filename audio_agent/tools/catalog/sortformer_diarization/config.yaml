@@ -1,0 +1,43 @@
+# SortFormer Streaming Diarization Tool Configuration
+# Speaker diarization using NVIDIA SortFormer streaming model (4 speakers max)
+
+name: sortformer_diarization
+description: "Speaker diarization using NVIDIA SortFormer streaming model. Identifies who speaks when in an audio recording. Supports up to 4 speakers."
+version: "1.0.0"
+author: "Audio Agent Team"
+tags: ["diarization", "speaker", "segmentation", "sortformer", "nemo"]
+
+# MCP Server Configuration
+server:
+  # IMPORTANT: You MUST pre-create the environment before running!
+  # Run: ./setup.sh
+  #
+  # Using explicit venv Python:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+
+  env:
+    MODEL_PATH: "${AUDIO_AGENT_MODELS_DIR}/sortformer-diar-streaming-4spk-v2/diar_streaming_sortformer_4spk-v2.nemo"
+    DEVICE: "auto"
+    NEMO_REDIRECT_LOGS_TO_STDERR: "1"
+    NEMO_LOGGING_LEVEL: "WARNING"
+
+  resources:
+    memory_gb: 8
+    gpu: true
+    cpu_cores: 4
+
+  lifecycle: "session"
+  startup_timeout_sec: 300  # Model loading can take time
+
+# Tool definitions
+tools:
+  - name: "diarize_sortformer"
+    description: "Perform speaker diarization on an audio file using NVIDIA SortFormer. Identifies who speaks when, returning speaker segments with start/end timestamps. Supports up to 4 speakers."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to diarize (16kHz mono WAV recommended)"
+      required: ["audio_path"]

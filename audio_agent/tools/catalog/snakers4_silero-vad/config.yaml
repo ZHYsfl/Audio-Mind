@@ -1,0 +1,39 @@
+name: snakers4_silero-vad
+description: "Silero Voice Activity Detection (VAD) model for speech segmentation"
+version: "1.0.0"
+author: "Audio Agent Team"
+tags: ["vad", "speech", "silero", "voice_activity_detection"]
+
+server:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  env:
+    MODEL_DEVICE: "auto"
+    TORCH_NUM_THREADS: "1"
+  resources:
+    memory_gb: 2
+    gpu: true
+    cpu_cores: 2
+  lifecycle: "session"
+  startup_timeout_sec: 300
+
+tools:
+  - name: "vad_predict"
+    description: "Lightweight Voice Activity Detection (VAD) using Silero model - quickly detects speech segments in audio. Use for fast speech detection when processing speed is prioritized over precision."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file"
+        sampling_rate:
+          type: integer
+          description: "Target sampling rate (default: 16000)"
+          default: 16000
+      required:
+        - audio_path
+  - name: "healthcheck"
+    description: "Check if the VAD model is ready"
+    input_schema:
+      type: object
+      properties: {}

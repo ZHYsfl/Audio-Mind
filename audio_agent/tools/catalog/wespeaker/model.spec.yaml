@@ -1,0 +1,53 @@
+model_id: "wenet-e2e/wespeaker"
+model_name: "WeSpeaker-English-ResNet221_LM-SV"
+task_type: "speaker_verification"
+deployment_type: "local"
+
+repo:
+  url: "https://github.com/wenet-e2e/wespeaker"
+  commit: "c92349a14d6b426808c4e09b8b12e076864dfc11"
+
+weights:
+  source: "built_in_auto_download"
+  local_path: "${AUDIO_AGENT_MODELS_DIR}/wespeaker"
+  required: true
+  note: "Weights are automatically downloaded on first model load to the WESPEAKER_HOME directory."
+
+environment:
+  preferred_backend: "uv"
+  python_version: "3.11"
+  requires_gpu: false
+  system_packages: []
+
+entrypoints:
+  import_test: |
+    import wespeaker
+  load_test: |
+    import os
+    os.environ["WESPEAKER_HOME"] = "${AUDIO_AGENT_MODELS_DIR}/wespeaker"
+    
+    import wespeaker
+    model = wespeaker.load_model("english")
+    model.set_device("cpu")
+  infer_test: |
+    score = model.compute_similarity(
+        "tests/fixtures/shared/speaker_verification/spk1_enroll.wav",
+        "tests/fixtures/shared/speaker_verification/spk1_trial.wav"
+    )
+
+io_contract:
+  input_type: "audio_path_pair"
+  output_type: "json"
+  primary_field: "similarity_score"
+  required_fields: ["similarity_score", "enrollment_audio", "trial_audio"]
+  nonempty_fields: ["similarity_score"]
+  json_serializable: true
+
+contract_expectation:
+  note: "similarity_score is normalized to [0, 1] range by wespeaker. Higher scores indicate higher likelihood of same speaker."
+
+acceptance:
+  must_import: true
+  must_load: true
+  must_infer: true
+  must_return_nonempty: true

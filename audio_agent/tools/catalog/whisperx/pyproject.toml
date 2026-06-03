@@ -1,0 +1,45 @@
+[project]
+name = "whisperx-tool"
+version = "1.0.0"
+description = "WhisperX ASR tool with word-level timestamps for Audio Agent Framework"
+requires-python = ">=3.11"
+authors = [
+    {name = "Audio Agent Team"}
+]
+
+# Dependencies for WhisperX
+# WhisperX provides ASR with forced alignment for word-level timestamps
+# IMPORTANT: For GPU support, install PyTorch with CUDA:
+#   uv pip install torch==2.4.0 torchaudio==2.4.0 --index-url https://download.pytorch.org/whl/cu121
+dependencies = [
+    "whisperx==3.8.4",
+    "torch>=2.0.0",
+    "torchaudio>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+# Build system (required by PEP 518)
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# setuptools configuration
+[tool.setuptools]
+py-modules = ["server", "model"]
+
+# uv-specific configuration
+[tool.uv]
+# allow-prereleases = true
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchaudio = { index = "pytorch-cpu" }

@@ -1,0 +1,49 @@
+{
+  "timestamp": "2024-03-27T21:30:00Z",
+  "tool_id": "",
+  "tool_name": "",
+  "status": "PASSED",
+  "phase": "phase_1",
+  "workflow": {
+    "started_at": "2024-03-27T21:00:00Z",
+    "completed_at": "2024-03-27T21:30:00Z",
+    "final_checkpoint": "SAVE_ARTIFACTS"
+  },
+  "validation_results": {
+    "import": {
+      "passed": true,
+      "duration_ms": 500,
+      "note": ""
+    },
+    "load": {
+      "passed": true,
+      "duration_ms": 3000,
+      "note": ""
+    },
+    "infer": {
+      "passed": true,
+      "duration_ms": 5000,
+      "note": ""
+    },
+    "contract": {
+      "passed": true,
+      "duration_ms": 100,
+      "note": ""
+    }
+  },
+  "backend": {
+    "chosen": "uv",
+    "reason": ""
+  },
+  "artifacts": [
+    "model.spec.yaml",
+    "artifacts/backend_choice.json",
+    "artifacts/build.log",
+    "artifacts/validation.log",
+    "artifacts/verdict.json",
+    "artifacts/artifact_manifest.json"
+  ],
+  "warnings": [],
+  "escalation": null,
+  "human_override": null
+}

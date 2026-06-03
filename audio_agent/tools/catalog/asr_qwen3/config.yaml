@@ -1,0 +1,63 @@
+# ASR Qwen3 Tool Configuration
+# Speech recognition using Qwen3-ASR-1.7B model
+
+name: asr_qwen3
+description: "Automatic Speech Recognition using Qwen3-ASR-1.7B model"
+version: "1.0.0"
+author: "Audio Agent Team"
+tags: ["asr", "speech", "transcription", "qwen", "qwen3"]
+
+# MCP Server Configuration
+server:
+  # IMPORTANT: You MUST pre-create the environment before running!
+  # Run: ./setup.sh
+  #
+  # Using explicit venv Python:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  
+  env:
+    MODEL_PATH: "${AUDIO_AGENT_MODELS_DIR}/Qwen3-ASR-1.7B"
+    DEVICE: "auto"
+    LANGUAGE: "auto"  # auto, zh, en, ja, ko, etc.
+    ALIGNER_PATH: "${AUDIO_AGENT_MODELS_DIR}/Qwen3-ForcedAligner-0.6B"
+    USE_ALIGNER: "true"
+    HF_HOME: "${AUDIO_AGENT_MODELS_DIR}"
+  
+  resources:
+    memory_gb: 8
+    gpu: true
+    cpu_cores: 2
+  
+  lifecycle: "session"
+  startup_timeout_sec: 300  # Model loading can take time
+
+# Tool definitions
+tools:
+  - name: "transcribe_qwenasr"
+    description: "Transcribe speech in audio to text using Qwen3-ASR-1.7B. Supports 52 languages including English, Chinese, Japanese, Korean, and 22 Chinese dialects."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to transcribe"
+        language:
+          type: string
+          description: "Language name (e.g., 'auto', 'Chinese', 'English', 'Japanese', 'Korean', 'Cantonese'). Use full language names, NOT ISO codes. Supported: Chinese, English, Cantonese, Arabic, German, French, Spanish, Portuguese, Indonesian, Italian, Korean, Russian, Thai, Vietnamese, Japanese, Turkish, Hindi, Malay, Dutch, Swedish, Danish, Finnish, Polish, Czech, Filipino, Persian, Greek, Romanian, Hungarian, Macedonian"
+          default: "auto"
+      required: ["audio_path"]
+  
+  - name: "transcribe_qwenasr_with_timestamps"
+    description: "Transcribe speech with word-level timestamps using forced alignment"
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file"
+        language:
+          type: string
+          description: "Language name (e.g., 'Chinese', 'English', 'Japanese'). Use full language names, NOT ISO codes."
+          default: "auto"
+      required: ["audio_path"]

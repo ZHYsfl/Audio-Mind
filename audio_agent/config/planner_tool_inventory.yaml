@@ -1,0 +1,1126 @@
+category_order:
+- metadata_validation
+- audio_derivation
+- temporal_segmentation
+- speech_and_speaker_processing
+- acoustic_music_feature_analysis
+- frontend_visual_perception
+category_definitions:
+  metadata_validation:
+    definition: File-level facts such as duration, sample rate, channels, format, and timestamp sanity.
+    guideline: Use to validate assumptions. Do not treat as audio-content evidence.
+  audio_derivation:
+    definition: Tools that create a derived audio artifact by trimming, filtering, denoising, resampling, channel conversion,
+      or separation.
+    guideline: Use when a derived audio source may help another tool or frontend follow-up. The derived file is not evidence
+      by itself.
+  temporal_segmentation:
+    definition: Tools that locate candidate time regions such as speech, silence, singing/music, or fixed chunks.
+    guideline: Treat boundaries as model- or threshold-dependent. Cross-check when the boundary is central.
+  speech_and_speaker_processing:
+    definition: Specialized ASR, diarization, VAD, and speaker-verification models.
+    guideline: Trust most on clean speech-like data. Be cautious on songs, overlap, crowds, noisy media, and processed voices.
+  acoustic_music_feature_analysis:
+    definition: Numeric acoustic or music features such as energy, pitch, spectrum, tempo, beats, chroma, key, and chords.
+    guideline: Use as supporting evidence. Do not map features to semantic labels unless the tool directly supports that abstraction.
+  frontend_visual_perception:
+    definition: VLM/omni-style inspection of plots or processing quality.
+    guideline: Use for bounded perceptual clues and counting visually separable acoustic events; not deterministic measurement
+      or final answering.
+tools:
+- name: audio_stats
+  server: ffmpeg
+  category: metadata_validation
+  description:
+    function: Report basic audio stream metadata and summary statistics.
+    recommended_use: []
+    not_recommended_use: []
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - ffmpeg
+- name: get_audio_info
+  server: librosa
+  category: metadata_validation
+  description:
+    function: Report duration, sample rate, and basic loading metadata.
+    recommended_use: []
+    not_recommended_use: []
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to analyze.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - librosa
+- name: afftdn_denoise
+  server: ffmpeg
+  category: audio_derivation
+  description:
+    function: Create a denoised audio file using FFmpeg FFT-domain denoising.
+    recommended_use: []
+    not_recommended_use: []
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+      output_path:
+        type: string
+      noise_reduction:
+        type: number
+        default: 12
+      noise_floor:
+        type: number
+        default: -25
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - ffmpeg
+- name: afwtdn_denoise
+  server: ffmpeg
+  category: audio_derivation
+  description:
+    function: Create a denoised audio file using FFmpeg wavelet denoising.
+    recommended_use: []
+    not_recommended_use: []
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+      output_path:
+        type: string
+      sigma:
+        type: number
+        default: 0.1
+      levels:
+        type: integer
+        default: 10
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - ffmpeg
+- name: convert_channels
+  server: ffmpeg
+  category: audio_derivation
+  description:
+    function: Create a derived audio file with a target channel layout.
+    recommended_use:
+    - channel-layout conversion
+    not_recommended_use:
+    - channel-specific evidence
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+      output_path:
+        type: string
+      channels:
+        type: integer
+        default: 1
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - ffmpeg
+- name: highpass_filter
+  server: ffmpeg
+  category: audio_derivation
+  description:
+    function: Create a derived audio file with low frequencies attenuated below a cutoff.
+    recommended_use:
+    - low-frequency attenuation
+    not_recommended_use: []
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+      output_path:
+        type: string
+      frequency:
+        type: number
+        default: 80
+      poles:
+        type: integer
+        default: 2
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - ffmpeg
+- name: lowpass_filter
+  server: ffmpeg
+  category: audio_derivation
+  description:
+    function: Create a derived audio file with high frequencies attenuated above a cutoff.
+    recommended_use:
+    - high-frequency attenuation
+    not_recommended_use: []
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+      output_path:
+        type: string
+      frequency:
+        type: number
+        default: 8000
+      poles:
+        type: integer
+        default: 2
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - ffmpeg
+- name: resample_audio
+  server: ffmpeg
+  category: audio_derivation
+  description:
+    function: Create a derived audio file at a target sample rate.
+    recommended_use:
+    - sample-rate conversion
+    not_recommended_use: []
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to input audio file
+      sample_rate:
+        type: integer
+        description: Target sample rate in Hz. Use 16000 for most ML models, 22050 or 44100 for high quality. REQUIRED.
+      output_path:
+        type: string
+        description: Optional output path. If not provided, saved to temp directory.
+    required:
+    - audio_path
+    - sample_rate
+  tags:
+  - mcp
+  - ffmpeg
+- name: separate_harmonic_percussive
+  server: librosa
+  category: audio_derivation
+  description:
+    function: Create harmonic and percussive source estimates using HPSS.
+    recommended_use:
+    - approximate harmonic/percussive separation
+    not_recommended_use:
+    - clean stem separation
+    - instrument isolation
+    - vocal isolation
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the input audio file.
+      output_dir:
+        type: string
+        description: Optional output directory. If not provided, saved to temp directory.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - librosa
+- name: trim_audio
+  server: ffmpeg
+  category: audio_derivation
+  description:
+    function: Cut a selected time range into a derived audio clip.
+    recommended_use: []
+    not_recommended_use: []
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+      output_path:
+        type: string
+      start_time:
+        type: number
+        default: 0
+      duration:
+        type: number
+      end_time:
+        type: number
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - ffmpeg
+- name: fireredvad_aed
+  server: fireredvad
+  category: temporal_segmentation
+  description:
+    function: Detect coarse speech, singing, and music regions.
+    recommended_use:
+    - clean speech/singing/music boundaries
+    - single dominant foreground source
+    not_recommended_use:
+    - general sound-event classification
+    - crowd/noise-heavy mixtures
+    - absence as proof
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Absolute or relative path to a WAV file.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - fireredvad
+- name: fireredvad_predict
+  server: fireredvad
+  category: temporal_segmentation
+  description:
+    function: Detect likely speech activity regions.
+    recommended_use:
+    - clean speech regions
+    - single dominant foreground speaker
+    not_recommended_use:
+    - singing as speech proof
+    - overlapping speakers
+    - crowd/noise-heavy mixtures
+    - absence as proof
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Absolute or relative path to a WAV file.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - fireredvad
+- name: segment_audio
+  server: ffmpeg
+  category: temporal_segmentation
+  description:
+    function: Split audio into segments using fixed duration or silence-based rules.
+    recommended_use:
+    - fixed-duration chunking
+    - silence-threshold chunking
+    not_recommended_use:
+    - semantic event boundaries
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to analyze.
+      top_db:
+        type: integer
+        default: 40
+        description: Threshold (in dB) for considering a region as silent.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - librosa
+- name: silencedetect
+  server: ffmpeg
+  category: temporal_segmentation
+  description:
+    function: Detect silence intervals using FFmpeg threshold and minimum-duration parameters.
+    recommended_use:
+    - threshold-based silence intervals
+    not_recommended_use: []
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+      noise_db:
+        type: number
+        default: -50
+      min_duration:
+        type: number
+        default: 0.5
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - ffmpeg
+- name: vad_predict
+  server: snakers4_silero-vad
+  category: temporal_segmentation
+  description:
+    function: Detect likely speech activity regions using Silero VAD.
+    recommended_use:
+    - clean speech regions
+    - single dominant foreground speaker
+    not_recommended_use:
+    - singing as speech proof
+    - overlapping speakers
+    - crowd/noise-heavy mixtures
+    - absence as proof
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file
+      sampling_rate:
+        type: integer
+        description: 'Target sampling rate (default: 16000)'
+        default: 16000
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - snakers4_silero-vad
+- name: diarize
+  server: diarizen
+  category: speech_and_speaker_processing
+  description:
+    function: Estimate anonymous speaker-labeled time segments.
+    recommended_use:
+    - clean conversational speech
+    - clearly separated speaker turns
+    - meeting/interview/narration audio
+    not_recommended_use:
+    - songs
+    - crowds
+    - overlapping speakers
+    - processed/cartoon voices
+    - speaker identity
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to diarize
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - diarizen
+- name: diarize_sortformer
+  server: sortformer_diarization
+  category: speech_and_speaker_processing
+  description:
+    function: Estimate anonymous speaker-labeled time segments using NVIDIA SortFormer.
+      Supports up to 4 speakers with arrival-order speaker tracking.
+    recommended_use:
+    - clean conversational speech
+    - clearly separated speaker turns
+    - meeting/interview/narration audio
+    - recordings with up to 4 speakers
+    not_recommended_use:
+    - songs
+    - crowds
+    - overlapping speakers
+    - processed/cartoon voices
+    - speaker identity
+    - recordings with more than 4 speakers
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to diarize (16kHz mono WAV recommended)
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - sortformer_diarization
+- name: speaker_verify
+  server: wespeaker
+  category: speech_and_speaker_processing
+  description:
+    function: Compare two audio clips and estimate whether they contain the same speaker.
+    recommended_use:
+    - clean speech enrollment and trial clips
+    - same-language or similar-channel speech
+    not_recommended_use:
+    - speaker identification without reference
+    - songs
+    - overlap
+    - noise-heavy clips
+    - very short clips
+  input_schema:
+    type: object
+    properties:
+      enrollment_audio:
+        type: string
+        description: Path to enrollment/reference audio file
+      trial_audio:
+        type: string
+        description: Path to trial/test audio file
+    required:
+    - enrollment_audio
+    - trial_audio
+  tags:
+  - mcp
+  - wespeaker
+- name: transcribe_fireredasr
+  server: fireredasr2s
+  category: speech_and_speaker_processing
+  description:
+    function: Transcribe speech with FireRedASR without word timestamps.
+    recommended_use:
+    - clean speech
+    - speech-dominant clips
+    - Mandarin/English speech
+    not_recommended_use:
+    - songs
+    - overlapping speakers
+    - crowds
+    - noise-heavy media
+    - non-speech vocalizations
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to transcribe (16kHz 16-bit mono PCM WAV recommended)
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - fireredasr2s
+- name: transcribe_fireredasr_with_timestamps
+  server: fireredasr2s
+  category: speech_and_speaker_processing
+  description:
+    function: Transcribe speech with FireRedASR and timestamp information.
+    recommended_use:
+    - clean speech
+    - speech-dominant clips
+    - rough utterance timing
+    not_recommended_use:
+    - songs
+    - overlapping speakers
+    - crowds
+    - noise-heavy media
+    - frame-exact alignment
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file (16kHz 16-bit mono PCM WAV recommended)
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - fireredasr2s
+- name: transcribe_qwenasr
+  server: asr_qwen3
+  category: speech_and_speaker_processing
+  description:
+    function: Transcribe speech with Qwen ASR without timestamps.
+    recommended_use:
+    - clean speech
+    - speech-dominant clips
+    - supported language speech
+    not_recommended_use:
+    - songs
+    - overlapping speakers
+    - crowds
+    - noise-heavy media
+    - non-speech vocalizations
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to transcribe
+      language:
+        type: string
+        description: 'Language name (e.g., ''auto'', ''Chinese'', ''English'', ''Japanese'', ''Korean'', ''Cantonese''). Use
+          full language names, NOT ISO codes. Supported: Chinese, English, Cantonese, Arabic, German, French, Spanish, Portuguese,
+          Indonesian, Italian, Korean, Russian, Thai, Vietnamese, Japanese, Turkish, Hindi, Malay, Dutch, Swedish, Danish,
+          Finnish, Polish, Czech, Filipino, Persian, Greek, Romanian, Hungarian, Macedonian'
+        default: auto
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - asr_qwen3
+- name: transcribe_qwenasr_with_timestamps
+  server: asr_qwen3
+  category: speech_and_speaker_processing
+  description:
+    function: Transcribe speech with Qwen ASR and timestamp information.
+    recommended_use:
+    - clean speech
+    - speech-dominant clips
+    - rough utterance timing
+    not_recommended_use:
+    - songs
+    - overlapping speakers
+    - crowds
+    - noise-heavy media
+    - frame-exact alignment
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file
+      language:
+        type: string
+        description: Language name (e.g., 'Chinese', 'English', 'Japanese'). Use full language names, NOT ISO codes.
+        default: auto
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - asr_qwen3
+- name: transcribe_whisperx
+  server: whisperx
+  category: speech_and_speaker_processing
+  description:
+    function: Transcribe speech with WhisperX without diarization.
+    recommended_use:
+    - clean speech
+    - speech-dominant clips
+    - supported language speech
+    not_recommended_use:
+    - songs
+    - overlapping speakers
+    - crowds
+    - noise-heavy media
+    - speaker turns
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to transcribe
+      language:
+        type: string
+        description: ISO 639-1 language code (e.g., 'en', 'zh', 'fr', 'de', 'ja', 'ko'). Use 2-letter codes, NOT full language
+          names. If not provided, auto-detected.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - whisperx
+- name: transcribe_whisperx_with_diarization
+  server: whisperx
+  category: speech_and_speaker_processing
+  description:
+    function: Transcribe speech with WhisperX and diarization output.
+    recommended_use:
+    - clean multi-speaker speech
+    - meeting/interview audio
+    - clearly separated speaker turns
+    not_recommended_use:
+    - songs
+    - crowds
+    - TV/movie mixtures
+    - overlapping speakers
+    - speaker identity
+    - perfect turn boundaries
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to transcribe
+      language:
+        type: string
+        description: ISO 639-1 language code (e.g., 'en', 'zh', 'fr', 'de', 'ja', 'ko'). Use 2-letter codes, NOT full language
+          names. If not provided, auto-detected.
+      min_speakers:
+        type: integer
+        description: Minimum number of speakers (optional)
+      max_speakers:
+        type: integer
+        description: Maximum number of speakers (optional)
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - whisperx
+# [TEMPORARILY DISABLED] Superseded by estimate_tempo_cnn_mirex
+# - name: analyze_beats
+#   server: librosa
+#   category: acoustic_music_feature_analysis
+#   description:
+#     function: Estimate beat timestamps and an approximate global tempo.
+#     recommended_use:
+#     - beat tracking
+#     - approximate global tempo
+#     not_recommended_use:
+#     - exact BPM guarantee
+#   input_schema:
+#     type: object
+#     properties:
+#       audio_path:
+#         type: string
+#         description: Path to the audio file to analyze.
+#       units:
+#         type: string
+#         enum:
+#         - time
+#         - frames
+#         default: time
+#         description: 'Units for beat timestamps: ''time'' (seconds) or ''frames''.'
+#     required:
+#     - audio_path
+#   tags:
+#   - mcp
+#   - librosa
+- name: analyze_onsets
+  server: librosa
+  category: acoustic_music_feature_analysis
+  description:
+    function: Detect onset times and onset-strength cues.
+    recommended_use:
+    - onset-strength peaks
+    - candidate transient times
+    not_recommended_use:
+    - semantic event counts
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to analyze.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - librosa
+- name: analyze_pitch
+  server: librosa
+  category: acoustic_music_feature_analysis
+  description:
+    function: Estimate a rough pitch contour and pitch statistics.
+    recommended_use:
+    - monophonic or dominant-pitch contour
+    not_recommended_use:
+    - exact note names
+    - polyphonic harmony
+    - chord labels
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to analyze.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - librosa
+# [TEMPORARILY DISABLED] Superseded by estimate_tempo_cnn_mirex
+# - name: analyze_rhythm
+#   server: librosa
+#   category: acoustic_music_feature_analysis
+#   description:
+#     function: Return a compact summary of tempo, beats, and onset activity.
+#     recommended_use:
+#     - compact beat/onset/tempo summary
+#     not_recommended_use:
+#     - exact BPM guarantee
+#     - exact event counts
+#   input_schema:
+#     type: object
+#     properties:
+#       audio_path:
+#         type: string
+#         description: Path to the audio file to analyze.
+#     required:
+#     - audio_path
+#   tags:
+#   - mcp
+#   - librosa
+# [TEMPORARILY DISABLED] Superseded by estimate_tempo_cnn_mirex
+# - name: estimate_tempo_cnn
+#   server: tempo_cnn
+#   category: acoustic_music_feature_analysis
+#   description:
+#     function: Estimate global musical tempo (BPM) using a CNN-based model (Tempo-CNN with fcn architecture). More reliable than librosa beat-tracking for pure tempo estimation.
+#     recommended_use:
+#     - tempo / BPM estimation
+#     - fast vs. slow classification
+#     not_recommended_use:
+#     - local tempo variation / tempogram
+#     - beat-level timing
+#     - exact BPM guarantee
+#   input_schema:
+#     type: object
+#     properties:
+#       audio_path:
+#         type: string
+#         description: Path to the audio file to analyze.
+#       interpolate:
+#         type: boolean
+#         default: false
+#         description: Enable quadratic interpolation for sub-integer BPM precision.
+#     required:
+#     - audio_path
+#   tags:
+#   - mcp
+#   - tempo_cnn
+- name: estimate_tempo_cnn_mirex
+  server: tempo_cnn
+  category: acoustic_music_feature_analysis
+  description:
+    function: Estimate the two most likely tempi and their relative salience using Tempo-CNN (MIREX-style). RECOMMENDED for tempo verification because it exposes tempo octave ambiguity (e.g., 52 vs 104 BPM). Outputs tempo1, tempo2, and salience (0-1). If salience < 0.6, both tempi are plausible.
+    recommended_use:
+    - tempo verification when single-tempo results seem suspicious
+    - detecting tempo octave ambiguity
+    - cross-checking against other tempo tools
+    not_recommended_use:
+    - when a single simple BPM answer is sufficient
+    - local tempo variation / tempogram
+    - beat-level timing
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to analyze.
+      interpolate:
+        type: boolean
+        default: false
+        description: Enable quadratic interpolation for sub-integer BPM precision.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - tempo_cnn
+- name: analyze_spectral_features
+  server: librosa
+  category: acoustic_music_feature_analysis
+  description:
+    function: Compute spectral descriptors such as centroid, bandwidth, rolloff, contrast, and flatness.
+    recommended_use:
+    - spectral centroid/bandwidth/rolloff/contrast/flatness
+    not_recommended_use:
+    - instrument taxonomy
+    - source identity
+    - music-theory labels
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to analyze.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - librosa
+- name: astats
+  server: ffmpeg
+  category: acoustic_music_feature_analysis
+  description:
+    function: Compute detailed FFmpeg amplitude statistics.
+    recommended_use:
+    - amplitude statistics
+    - peak/RMS diagnostics
+    not_recommended_use: []
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - ffmpeg
+- name: detect_key
+  server: librosa
+  category: acoustic_music_feature_analysis
+  description:
+    function: Estimate a coarse musical key from chroma-like features.
+    recommended_use:
+    - coarse key-center estimate
+    not_recommended_use:
+    - modulation analysis
+    - Roman numeral analysis
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to analyze.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - librosa
+- name: extract_chroma
+  server: librosa
+  category: acoustic_music_feature_analysis
+  description:
+    function: Extract pitch-class energy features over time.
+    recommended_use:
+    - pitch-class energy features
+    not_recommended_use:
+    - chord naming
+    - inversions
+    - Roman numerals
+    - modulations
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to analyze.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - librosa
+- name: extract_mfcc
+  server: librosa
+  category: acoustic_music_feature_analysis
+  description:
+    function: Extract MFCC spectral-envelope features.
+    recommended_use:
+    - MFCC spectral-envelope features
+    not_recommended_use:
+    - speaker identity
+    - language
+    - instrument class
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to analyze.
+      n_mfcc:
+        type: integer
+        default: 13
+        description: Number of MFCC coefficients to extract.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - librosa
+- name: extract_rms_energy
+  server: librosa
+  category: acoustic_music_feature_analysis
+  description:
+    function: Extract RMS energy over time as a loudness-envelope proxy.
+    recommended_use:
+    - RMS energy envelope
+    not_recommended_use:
+    - exact perceived loudness
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to analyze.
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - librosa
+# [TEMPORARILY DISABLED] Superseded by recognize_chords_large_vocab
+# - name: recognize_chords
+#   server: autochord
+#   category: acoustic_music_feature_analysis
+#   description:
+#     function: Recognize a coarse chord timeline with classes limited to N, 12 major triads, and 12 minor triads.
+#     recommended_use:
+#     - coarse major/minor triads in clear polyphonic harmony
+#     not_recommended_use:
+#     - sevenths
+#     - diminished/augmented chords
+#     - inversions
+#     - slash chords
+#     - Roman numerals
+#     - modulation
+#     - Neo-Riemannian relations
+#     - monophonic implied harmony
+#   input_schema:
+#     type: object
+#     properties:
+#       audio_path:
+#         type: string
+#         description: Path to the audio file to analyze.
+#     required:
+#     - audio_path
+#   tags:
+#   - mcp
+#   - autochord
+- name: recognize_chords_large_vocab
+  server: lv_chordia
+  category: acoustic_music_feature_analysis
+  description:
+    function: Recognize a chord timeline with large vocabulary support including 7ths, diminished, augmented, and complex jazz chords.
+    recommended_use:
+    - complex chord progressions requiring rich vocabulary
+    - jazz harmony analysis
+    - seventh chords and extended chords
+    - chord recognition when autochord's 25-class vocabulary is insufficient
+    not_recommended_use:
+    - simple major/minor triads (autochord is sufficient and faster)
+    - monophonic implied harmony
+    - Roman numerals
+    - modulation analysis
+    - exact bass note / slash chord precision
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to analyze.
+      chord_dict_name:
+        type: string
+        enum: [submission, ismir2017, full]
+        default: submission
+        description: Chord dictionary to use. 'submission' (~170 chords, recommended), 'ismir2017' (~25 chords, MIREX standard), 'full' (~600+ chords, experimental).
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - lv_chordia
+- name: spectral_stats
+  server: ffmpeg
+  category: acoustic_music_feature_analysis
+  description:
+    function: Compute FFmpeg spectral statistics over audio.
+    recommended_use:
+    - FFmpeg spectral statistics
+    not_recommended_use:
+    - instrument taxonomy
+    - source identity
+    - music-theory labels
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - ffmpeg
+- name: volumedetect
+  server: ffmpeg
+  category: acoustic_music_feature_analysis
+  description:
+    function: Compute FFmpeg mean and maximum volume statistics.
+    recommended_use:
+    - mean and max volume
+    not_recommended_use:
+    - time-varying loudness
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+    required:
+    - audio_path
+  tags:
+  - mcp
+  - ffmpeg
+- name: inspect_audio_plots
+  server: omni_captioner
+  category: frontend_visual_perception
+  description:
+    function: Generate one combined audio-plot image and ask a VLM for bounded visual-acoustic clues.
+    recommended_use:
+    - counting visually separable bursts/events
+    - visible activity/silence/energy/transient/spectral structure
+    not_recommended_use:
+    - speech content
+    - speaker identity
+    - exact pitch names
+    - chord recognition
+    - instrument taxonomy
+    - music-theory labels
+    - final answering
+    - events without visible acoustic separation
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the audio file to inspect (REQUIRED)
+      question:
+        type: string
+        description: Original user question for context only; the tool will not answer it directly
+      analysis_focus:
+        type: string
+        description: Specific visual-acoustic uncertainty to inspect, e.g. repeated transients, silent gaps, loudness change,
+          or brightness change
+      plot_types:
+        type: array
+        items:
+          type: string
+          enum:
+          - waveform
+          - mel_spectrogram
+          - rms_energy
+          - onset_envelope
+          - spectral_rolloff
+          - cqt_chroma
+          - bpm_curve
+        description: Optional selected plot rows. Defaults to waveform, mel_spectrogram, rms_energy, onset_envelope, spectral_rolloff.
+      time_range:
+        type: object
+        properties:
+          start:
+            type: number
+          end:
+            type: number
+        description: Optional time range in seconds to crop before plotting
+    required:
+    - audio_path
+    - question
+    - analysis_focus
+  tags:
+  - mcp
+  - omni_captioner
+- name: verify_audio_quality
+  server: omni_captioner
+  category: frontend_visual_perception
+  description:
+    function: Use a VLM-style inspection to compare or check audio-processing quality artifacts.
+    recommended_use:
+    - processing artifacts
+    - processed-versus-reference quality check
+    not_recommended_use:
+    - semantic audio understanding
+  input_schema:
+    type: object
+    properties:
+      audio_path:
+        type: string
+        description: Path to the processed/enhanced audio file to verify (REQUIRED)
+      reference_audio_path:
+        type: string
+        description: 'Optional: Path to original audio for comparison'
+      verification_prompt:
+        type: string
+        description: Specific instructions on what to check (e.g., 'Check for denoising artifacts', 'Compare with reference
+          for content loss')
+    required:
+    - audio_path
+    - verification_prompt
+  tags:
+  - mcp
+  - omni_captioner

@@ -1,0 +1,42 @@
+# DiariZen Speaker Diarization Tool Configuration
+# Speaker diarization using BUT-FIT/diarizen-wavlm-large-s80-md model
+
+name: diarizen
+description: "Speaker diarization using DiariZen with wavlm-large-s80-md model. Identifies who speaks when in an audio recording."
+version: "1.0.0"
+author: "Audio Agent Team"
+tags: ["diarization", "speaker", "segmentation", "diarizen"]
+
+# MCP Server Configuration
+server:
+  # IMPORTANT: You MUST pre-create the environment before running!
+  # Run: ./setup.sh
+  #
+  # Using explicit venv Python:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  
+  env:
+    MODEL_PATH: "${AUDIO_AGENT_MODELS_DIR}/diarizen-wavlm-large-s80-md"
+    DEVICE: "auto"
+    HF_HOME: "${AUDIO_AGENT_MODELS_DIR}"
+  
+  resources:
+    memory_gb: 8
+    gpu: true
+    cpu_cores: 4
+  
+  lifecycle: "session"
+  startup_timeout_sec: 300  # Model loading can take time
+
+# Tool definitions
+tools:
+  - name: "diarize"
+    description: "Perform speaker diarization on an audio file. Identifies who speaks when, returning speaker segments with start/end timestamps."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to diarize"
+      required: ["audio_path"]

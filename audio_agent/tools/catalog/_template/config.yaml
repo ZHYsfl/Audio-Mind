@@ -1,0 +1,59 @@
+# Tool Configuration Template
+# Copy this file and customize for your tool
+
+name: template_tool
+description: "Template for creating new MCP tools"
+version: "1.0.0"
+author: "Your Name"
+tags: ["template", "example"]
+
+# MCP Server Configuration
+server:
+  # Command to start the MCP server
+  # 
+  # IMPORTANT: You MUST pre-create the environment before running!
+  # Run: ./setup.sh
+  #
+  # Using explicit venv Python (recommended for production):
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."  # Relative to this tool's directory
+  
+  # Alternative: Using system Python (NOT recommended - no isolation)
+  # command: ["python", "-m", "audio_agent.tools.catalog.template_tool.server"]
+  
+  # Environment variables passed to the server
+  env:
+    # Example: MODEL_PATH: "model/name"
+    # Example: DEVICE: "cuda"
+    # Example: LOG_LEVEL: "INFO"
+  
+  # Resource requirements (for documentation and scheduling)
+  resources:
+    memory_gb: 4          # Estimated RAM needed
+    gpu: false            # Whether GPU is required
+    cpu_cores: 2          # Estimated CPU cores needed
+  
+  # Lifecycle mode:
+  # - "per_call": Spawn new server for each invocation
+  # - "session": Keep server alive during agent session (recommended)
+  # - "persistent": Always running, managed externally
+  lifecycle: "session"
+  
+  # Timeout for server startup (seconds)
+  startup_timeout_sec: 60
+
+# Tool definitions (optional, for documentation)
+# These should match what the server returns from tools/list
+tools:
+  - name: "example_tool"
+    description: "An example tool that does something useful"
+    input_schema:
+      type: object
+      properties:
+        input_text:
+          type: string
+          description: "The input text to process"
+        options:
+          type: object
+          description: "Optional processing options"
+      required: ["input_text"]

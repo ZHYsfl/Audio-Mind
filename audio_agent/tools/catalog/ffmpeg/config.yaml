@@ -1,0 +1,260 @@
+name: ffmpeg
+description: "FFmpeg-based comprehensive audio processing tool - 56+ tools for format conversion, volume/dynamics, EQ/filtering, noise reduction, time/pitch manipulation, spatial processing, effects, analysis, and advanced processing."
+
+server:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  env: {}
+  resources:
+    memory_gb: 1
+    gpu: false
+    # CPU-only processing is sufficient for FFmpeg
+
+capabilities:
+  # Comprehensive tools across 9 categories
+  tools:
+    # =========================================================================
+    # PHASE 1: FORMAT & CODEC CONVERSION (5 tools)
+    # =========================================================================
+    - name: convert_format
+      description: "Convert audio to different format (MP3, WAV, FLAC, AAC, OGG, OPUS, M4A)"
+      output_type: audio_file
+    - name: resample_audio
+      description: "Resample audio to target sample rate. REQUIRED parameter: 'sample_rate' (Hz). Common values: 16000 (for ML models), 22050, 44100, 48000. Parameter name MUST be 'sample_rate'."
+      output_type: audio_file
+    - name: change_bit_depth
+      description: "Change audio bit depth (8, 16, 24, 32, 64 bits)"
+      output_type: audio_file
+    - name: convert_channels
+      description: "Convert channel layout (1=mono, 2=stereo, 5.1=surround)"
+      output_type: audio_file
+    - name: extract_audio_from_video
+      description: "Extract audio stream from video file (MP4, AVI, MKV, etc.)"
+      output_type: audio_file
+    
+    # =========================================================================
+    # PHASE 2: VOLUME & DYNAMICS (7 tools)
+    # =========================================================================
+    - name: adjust_volume
+      description: "Adjust volume by dB or factor"
+      output_type: audio_file
+    - name: loudnorm
+      description: "Loudness normalization to LUFS standard (-16 LUFS, -1.5 dBTP, 11 LRA)"
+      output_type: audio_file
+    - name: dynaudnorm
+      description: "Dynamic loudness normalization (gentler than loudnorm, good for music)"
+      output_type: audio_file
+    - name: acompressor
+      description: "Dynamic range compression (reduce dynamic range)"
+      output_type: audio_file
+    - name: agate
+      description: "Noise gate - remove audio below threshold"
+      output_type: audio_file
+    - name: alimiter
+      description: "Brick-wall limiter - prevent clipping and distortion"
+      output_type: audio_file
+    - name: compand
+      description: "Compand - compress and expand dynamic range (broadcast-style)"
+      output_type: audio_file
+    
+    # =========================================================================
+    # PHASE 3: EQUALIZATION & FILTERING (8 tools)
+    # =========================================================================
+    - name: highpass_filter
+      description: "High-pass filter - remove low frequencies (rumble, wind)"
+      output_type: audio_file
+    - name: lowpass_filter
+      description: "Low-pass filter - remove high frequencies (hiss, noise)"
+      output_type: audio_file
+    - name: bandpass_filter
+      description: "Band-pass filter - keep only frequency range"
+      output_type: audio_file
+    - name: bandreject_filter
+      description: "Band-reject (notch) filter - remove frequency band (50/60Hz hum)"
+      output_type: audio_file
+    - name: equalizer
+      description: "Parametric equalizer - boost or cut specific frequency"
+      output_type: audio_file
+    - name: anequalizer
+      description: "Graphic equalizer - multi-band EQ (10-band or custom)"
+      output_type: audio_file
+    - name: bass_boost
+      description: "Bass boost/cut using low-shelf filter"
+      output_type: audio_file
+    - name: treble_boost
+      description: "Treble boost/cut using high-shelf filter"
+      output_type: audio_file
+    
+    # =========================================================================
+    # PHASE 4: NOISE REDUCTION & RESTORATION (4 tools)
+    # =========================================================================
+    - name: afftdn_denoise
+      description: "FFT-based noise reduction (steady background noise)"
+      output_type: audio_file
+    - name: afwtdn_denoise
+      description: "Wavelet denoising (impulsive/transient noise)"
+      output_type: audio_file
+    - name: adeclick
+      description: "Remove clicks and pops (vinyl restoration)"
+      output_type: audio_file
+    - name: frequency_filter_combo
+      description: "Apply highpass + lowpass combo for voice isolation"
+      output_type: audio_file
+    
+    # =========================================================================
+    # PHASE 5: TIME & PITCH MANIPULATION (7 tools)
+    # =========================================================================
+    - name: change_tempo
+      description: "Change tempo (speed) without changing pitch"
+      output_type: audio_file
+    - name: trim_audio
+      description: "Trim audio by start time and duration"
+      output_type: audio_file
+    - name: silenceremove
+      description: "Remove silence sections from audio"
+      output_type: audio_file
+    - name: pad_silence
+      description: "Add silence padding at start and/or end"
+      output_type: audio_file
+    - name: reverse_audio
+      description: "Reverse audio playback"
+      output_type: audio_file
+    - name: add_delay
+      description: "Add echo/delay effect"
+      output_type: audio_file
+    - name: pitch_shift_rubberband
+      description: "High-quality pitch shifting using rubberband"
+      output_type: audio_file
+    
+    # =========================================================================
+    # PHASE 6: SPATIAL & STEREO PROCESSING (6 tools)
+    # =========================================================================
+    - name: pan_channels
+      description: "Pan/remix channels (stereo to mono, etc.)"
+      output_type: audio_file
+    - name: split_channels
+      description: "Split stereo into separate left and right files"
+      output_type: audio_file
+    - name: mix_audio
+      description: "Mix multiple audio files together"
+      output_type: audio_file
+    - name: stereotools
+      description: "Stereo adjustment tools (MS matrix, balance)"
+      output_type: audio_file
+    - name: stereowiden
+      description: "Stereo widening effect"
+      output_type: audio_file
+    - name: crossfeed
+      description: "Headphone crossfeed filter"
+      output_type: audio_file
+    
+    # =========================================================================
+    # PHASE 7: EFFECTS & ENHANCEMENT (8 tools)
+    # =========================================================================
+    - name: add_echo
+      description: "Add echo/reverb effect with configurable delays"
+      output_type: audio_file
+    - name: chorus_effect
+      description: "Add chorus effect (thickens sound)"
+      output_type: audio_file
+    - name: flanger_effect
+      description: "Add flanger effect (sweeping comb filter)"
+      output_type: audio_file
+    - name: phaser_effect
+      description: "Add phaser effect (sweeping notches)"
+      output_type: audio_file
+    - name: tremolo_effect
+      description: "Add tremolo effect (amplitude modulation)"
+      output_type: audio_file
+    - name: vibrato_effect
+      description: "Add vibrato effect (pitch modulation)"
+      output_type: audio_file
+    - name: deesser
+      description: "Reduce sibilance (harsh S and T sounds)"
+      output_type: audio_file
+    - name: crystalizer
+      description: "Audio sharpening/exciter effect"
+      output_type: audio_file
+    
+    # =========================================================================
+    # PHASE 8: ANALYSIS & MEASUREMENT (7 tools)
+    # =========================================================================
+    - name: audio_stats
+      description: "Get comprehensive audio statistics"
+      output_type: text
+    - name: silencedetect
+      description: "Detect silence periods in audio"
+      output_type: text
+    - name: volumedetect
+      description: "Detect max and mean volume levels"
+      output_type: text
+    - name: ebur128
+      description: "EBU R128 loudness measurement (LUFS)"
+      output_type: text
+    - name: replaygain
+      description: "Calculate ReplayGain values"
+      output_type: text
+    - name: astats
+      description: "Detailed frame-level audio statistics"
+      output_type: text
+    - name: spectral_stats
+      description: "Spectral analysis statistics"
+      output_type: text
+    
+    # =========================================================================
+    # PHASE 9: ADVANCED PROCESSING (4 tools)
+    # =========================================================================
+    - name: sidechain_compress
+      description: "Sidechain compression (ducking)"
+      output_type: audio_file
+    - name: crossfade_audio
+      description: "Crossfade between two audio files"
+      output_type: audio_file
+    - name: concat_audio
+      description: "Concatenate multiple audio files"
+      output_type: audio_file
+    - name: dynamic_equalizer
+      description: "Dynamic equalizer (frequency-dependent compression)"
+      output_type: audio_file
+    
+    # =========================================================================
+    # HEALTHCHECK
+    # =========================================================================
+    - name: healthcheck
+      description: "Check if FFmpeg tools are available"
+      output_type: text
+
+notes: |
+  This tool provides 56+ comprehensive FFmpeg-based audio processing capabilities:
+  
+  Format Conversion (5): convert_format, resample_audio, change_bit_depth, convert_channels, extract_audio_from_video
+  Volume/Dynamics (7): adjust_volume, loudnorm, dynaudnorm, acompressor, agate, alimiter, compand
+  EQ/Filtering (8): highpass_filter, lowpass_filter, bandpass_filter, bandreject_filter, equalizer, anequalizer, bass_boost, treble_boost
+  Noise Reduction (4): afftdn_denoise, afwtdn_denoise, adeclick, frequency_filter_combo
+  Time/Pitch (7): change_tempo, trim_audio, silenceremove, pad_silence, reverse_audio, add_delay, pitch_shift_rubberband
+  Spatial (6): pan_channels, split_channels, mix_audio, stereotools, stereowiden, crossfeed
+  Effects (8): add_echo, chorus_effect, flanger_effect, phaser_effect, tremolo_effect, vibrato_effect, deesser, crystalizer
+  Analysis (7): audio_stats, silencedetect, volumedetect, ebur128, replaygain, astats, spectral_stats
+  Advanced (4): sidechain_compress, crossfade_audio, concat_audio, dynamic_equalizer
+  
+  OUTPUT FORMAT CONVENTION:
+  All audio-producing tools return a consistent JSON format:
+  {
+    "output_path": "/path/to/primary_output.wav",  // Main output file
+    "duration": 123.4,                               // Duration in seconds
+    "sample_rate": 44100,                            // Sample rate in Hz
+    "channels": 2,                                   // Number of channels
+    "additional_outputs": {                          // Extra files (if any)
+      "right_channel_path": "/path/to/right.wav",  // e.g., for split_channels
+      "description": "What was done to the audio"
+    }
+  }
+  
+  Analysis tools (audio_stats, silencedetect, etc.) return text/data outputs without file paths.
+  
+  For multi-output tools like 'split_channels':
+  - Primary output (output_path): Left channel file
+  - Secondary output: right_channel_path in additional_outputs
+  
+  For multi-output tools like 'concat_audio', 'crossfade_audio':
+  - Single output file at output_path

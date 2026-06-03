@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fireredvad-tool"
+version = "1.0.0"
+description = "FireRedVAD voice activity detection tool for the Audio Agent Framework"
+requires-python = ">=3.11"
+dependencies = [
+    "fireredvad[cpu]==0.0.2",
+    "huggingface_hub>=1.8.0",
+    "librosa>=0.10.0",
+    "numpy>=1.26.0",
+    "soundfile>=0.13.1",
+    "torch>=2.0",
+    "torchaudio>=2.0",
+]
+
+[tool.setuptools]
+py-modules = ["server", "model"]
+
+[[tool.uv.index]]
+name = "pytorch-gpu"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-gpu" }
+torchaudio = { index = "pytorch-gpu" }

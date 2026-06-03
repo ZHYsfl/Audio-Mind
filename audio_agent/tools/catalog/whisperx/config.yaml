@@ -1,0 +1,103 @@
+# WhisperX Tool Configuration
+# ASR with word-level timestamps using WhisperX
+
+name: whisperx
+description: "WhisperX - ASR with forced alignment for word-level timestamps. Supports 99 languages with accurate transcription and speaker diarization capabilities. Strongly recommended to cross-validate results with other ASR/SD tools for critical applications."
+version: "1.0.0"
+author: "Audio Agent Team"
+tags: ["asr", "speech", "transcription", "whisper", "alignment", "timestamps"]
+
+# MCP Server Configuration
+server:
+  # IMPORTANT: You MUST pre-create the environment before running!
+  # Run: ./setup.sh
+  #
+  # Using explicit venv Python:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  
+  env:
+    MODEL_ARCH: "small"
+    DEVICE: "cpu"
+    VAD_METHOD: "pyannote"
+    # Path to pre-downloaded pyannote diarization model (requires HF token + accepted user agreement).
+    # Default points to ${AUDIO_AGENT_MODELS_DIR}/pyannote-speaker-diarization-3.1; override
+    # this env var to point at a different pyannote diarization checkpoint if you have one.
+    DIARIZATION_MODEL_PATH: "${AUDIO_AGENT_MODELS_DIR}/pyannote-speaker-diarization-3.1"
+    # HuggingFace cache for Whisper models (downloaded on first use)
+    HF_HOME: "${AUDIO_AGENT_MODELS_DIR}"
+  
+  resources:
+    memory_gb: 8
+    gpu: false
+    cpu_cores: 4
+  
+  lifecycle: "session"
+  startup_timeout_sec: 300  # Model loading can take time
+
+# Tool definitions
+capabilities:
+  tools:
+    - name: "transcribe_audio"
+      description: "Transcribe speech in audio to text with word-level timestamps using WhisperX. Supports 99 languages. Returns segments with start/end times and text. Strongly recommended to cross-validate results with other ASR/SD tools for critical applications."
+      output_type: json
+      input_schema:
+        type: object
+        properties:
+          audio_path:
+            type: string
+            description: "Path to the audio file to transcribe"
+          language:
+            type: string
+            description: "ISO 639-1 language code (e.g., 'en', 'zh', 'fr', 'de', 'ja', 'ko'). Use 2-letter codes, NOT full language names. If not provided, auto-detected."
+        required: ["audio_path"]
+    
+    - name: "transcribe_with_diarization"
+      description: "Transcribe speech with speaker diarization using WhisperX and pyannote-audio. Identifies who spoke when. Returns segments with speaker labels (SPEAKER_01, SPEAKER_02, etc.). Strongly recommended to cross-validate results with other ASR/SD tools for critical applications."
+      output_type: json
+      input_schema:
+        type: object
+        properties:
+          audio_path:
+            type: string
+            description: "Path to the audio file to transcribe"
+          language:
+            type: string
+            description: "ISO 639-1 language code (e.g., 'en', 'zh', 'fr', 'de', 'ja', 'ko'). Use 2-letter codes, NOT full language names. If not provided, auto-detected."
+          min_speakers:
+            type: integer
+            description: "Minimum number of speakers (optional)"
+          max_speakers:
+            type: integer
+            description: "Maximum number of speakers (optional)"
+        required: ["audio_path"]
+    
+    - name: "healthcheck"
+      description: "Check if WhisperX is properly configured and ready"
+      output_type: text
+      input_schema:
+        type: object
+        properties: {}
+
+notes: |
+  WhisperX provides accurate ASR with word-level timestamps through forced alignment.
+  
+  Key Features:
+  - 99 language support
+  - Word-level timestamps via forced alignment
+  - Speaker diarization via pyannote-audio (SPEAKER_01, SPEAKER_02, etc.)
+  - VAD-based segmentation
+  
+  Tools:
+  - transcribe_audio: Basic transcription with word-level timestamps
+  - transcribe_with_diarization: Transcription + speaker identification
+  
+  Environment Variables (all optional):
+  - MODEL_ARCH: Whisper model size (tiny, base, small, medium, large, large-v2, large-v3)
+  - DEVICE: compute device (cpu, cuda)
+  - VAD_METHOD: VAD method (pyannote, silero, or None)
+  - DIARIZATION_MODEL_PATH: Path to pyannote diarization model
+  - HF_HOME: Where Whisper models are downloaded on first use (~2-3GB)
+  
+  Pre-downloaded Models:
+  - Pyannote diarization model is at DIARIZATION_MODEL_PATH (loaded directly, no download needed)

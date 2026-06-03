@@ -1,0 +1,71 @@
+name: tempo_cnn
+description: "Musical tempo estimation using Tempo-CNN (CNN-based model). Estimates global BPM from audio files."
+version: "1.0.0"
+author: "Audio Agent Team"
+tags: ["tempo", "bpm", "music", "rhythm", "cnn"]
+
+server:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  env: {}
+  resources:
+    memory_gb: 4
+    gpu: false
+    cpu_cores: 2
+  lifecycle: "session"
+  startup_timeout_sec: 120
+
+tools:
+  - name: "estimate_tempo_cnn"
+    description: "Estimate global musical tempo (BPM) using a CNN-based model. More reliable than librosa beat-tracking for pure tempo estimation. WARNING: vulnerable to octave ambiguity."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+        interpolate:
+          type: boolean
+          default: false
+          description: "Enable quadratic interpolation for sub-integer BPM precision."
+      required: ["audio_path"]
+
+  - name: "estimate_tempo_cnn_mirex"
+    description: "Estimate the two most likely tempi and their salience (MIREX-style). RECOMMENDED for tempo verification because it exposes octave ambiguity."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+        interpolate:
+          type: boolean
+          default: false
+          description: "Enable quadratic interpolation for sub-integer BPM precision."
+      required: ["audio_path"]
+
+  - name: "healthcheck"
+    description: "Check whether the tempo-cnn runtime is available."
+    input_schema:
+      type: object
+      properties: {}
+
+notes: |
+  Output format (estimate_tempo_cnn):
+  {
+    "tempo": 128.5,
+    "model_name": "fcn",
+    "interpolate": false,
+    "audio_path": "/path/to/audio.wav"
+  }
+
+  Output format (estimate_tempo_cnn_mirex):
+  {
+    "tempo1": 52.0,
+    "tempo2": 104.0,
+    "salience": 0.45,
+    "model_name": "fcn",
+    "interpolate": false,
+    "audio_path": "/path/to/audio.wav",
+    "note": "Ambiguous: both 52.0 and 104.0 BPM are roughly equally likely. Check octave relationship..."
+  }

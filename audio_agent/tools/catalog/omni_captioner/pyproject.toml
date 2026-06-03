@@ -1,0 +1,27 @@
+[project]
+name = "omni-captioner-tool"
+version = "1.0.0"
+description = "Qwen3-Omni API client for audio captioning via DashScope"
+requires-python = ">=3.11"
+authors = [
+    {name = "Audio Agent Team"}
+]
+dependencies = [
+    "openai>=1.0.0",
+    "soundfile>=0.12.0",
+    "numpy>=1.24.0",
+    "librosa>=0.10.0",
+    "matplotlib>=3.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["server", "model"]

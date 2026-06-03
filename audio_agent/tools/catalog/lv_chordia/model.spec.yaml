@@ -1,0 +1,48 @@
+tool_id: openmirlab/lv-chordia
+tool_name: lv_chordia
+task_type: chord_recognition
+deployment_type: local
+
+repo:
+  url: https://github.com/openmirlab/lv-chordia
+  commit: null
+
+weights:
+  source: pip
+  local_path: null
+  required: true
+  note: "lv-chordia bundles 5 pre-trained ensemble models in the pip package itself (~27MB). Models are loaded internally by the package."
+
+environment_hint:
+  preferred_backend: uv
+  python_version: "3.11"
+  requires_gpu: false
+  system_packages: [ffmpeg, libsndfile1]
+
+phase1_runtime_target:
+  Validate the minimal callable path:
+  - confirm package is importable
+  - trigger model load on first import
+  - run inference on fixture
+
+entrypoints:
+  import_test: "from lv_chordia.chord_recognition import chord_recognition"
+  load_test: "from lv_chordia.chord_recognition import chord_recognition"
+  infer_test: "chord_recognition(fixture_path, chord_dict_name='ismir2017')"
+
+fixture:
+  audio: tests/fixtures/shared/mir/chord_progression_16k_10s.wav
+  task_specific: true
+  fallback_allowed: true
+
+io_contract:
+  input_type: audio_path
+  output_type: json
+  primary_field: segments
+  required_fields: [segments]
+  nonempty_fields: [segments]
+  json_serializable: true
+  segment_schema:
+    start_time: float
+    end_time: float
+    chord: str

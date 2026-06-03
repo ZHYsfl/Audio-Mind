@@ -1,0 +1,53 @@
+name: lv_chordia
+description: "Large-vocabulary chord transcription using lv-chordia (ISMIR 2019). Supports ~170 chords (submission dict), ~25 chords (ismir2017 dict), or ~600+ chords (full dict). Recognizes complex chords including 7ths, diminished, augmented, and jazz chords."
+version: "1.0.0"
+author: "Audio Agent Team"
+tags: ["chord", "harmony", "music", "chord_recognition", "progression", "large_vocabulary"]
+
+server:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  env:
+    MODEL_CACHE_DIR: "${AUDIO_AGENT_MODELS_DIR}/lv_chordia"
+  resources:
+    memory_gb: 4
+    gpu: false
+    cpu_cores: 2
+  lifecycle: "session"
+  startup_timeout_sec: 120
+
+tools:
+  - name: "recognize_chords_large_vocab"
+    description: "Recognize chord progression with large vocabulary support. Can detect complex chords including 7ths, diminished, augmented, and jazz chords. Three dictionaries available: submission (~170 chords, default), ismir2017 (~25 chords), full (~600+ chords). Useful for answering 'which chord is played', 'what is the chord progression', 'identify the harmony' questions that require richer chord vocabulary than basic major/minor triads."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to analyze."
+        chord_dict_name:
+          type: string
+          enum: ["submission", "ismir2017", "full"]
+          default: "submission"
+          description: "Chord dictionary to use. 'submission' (~170 chords, recommended), 'ismir2017' (~25 chords, MIREX standard), 'full' (~600+ chords, experimental)."
+      required: ["audio_path"]
+
+  - name: "healthcheck"
+    description: "Check whether the lv-chordia runtime is available."
+    input_schema:
+      type: object
+      properties: {}
+
+notes: |
+  Output format:
+  {
+    "segments": [
+      {"start_time": 0.000, "end_time": 2.325, "chord": "C:maj"},
+      {"start_time": 2.325, "end_time": 4.651, "chord": "F:maj7"},
+      ...
+    ],
+    "duration": 10.000
+  }
+
+  Chord labels follow JAMS format: Root (A-G, #/b) + ":" + type (maj, min, 7, maj7, min7, dim, aug, etc.)
+  Special: "N" indicates no chord/silence.

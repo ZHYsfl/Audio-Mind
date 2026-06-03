@@ -1,0 +1,115 @@
+# Omni Captioner Tool Configuration
+# API-based audio captioning and image-based VLM inspection via DashScope
+
+name: omni_captioner
+description: "Audio captioning using Qwen3-Omni and image-based VLM inspection using Qwen3-VL via DashScope"
+version: "1.0.0"
+author: "Audio Agent Team"
+tags: ["captioning", "audio", "vision", "qwen", "omni", "vlm", "api"]
+
+# MCP Server Configuration
+server:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  
+  env:
+    DASHSCOPE_BASE_URL: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    DEFAULT_MODEL: "qwen3.5-omni-plus"
+    DEFAULT_VLM_MODEL: "qwen3-vl-plus"
+    DEFAULT_VLM_ENABLE_THINKING: "false"
+    DEFAULT_VLM_THINKING_BUDGET: "81920"
+    DEFAULT_VOICE: "Cherry"
+    DEFAULT_AUDIO_FORMAT: "wav"
+    DEFAULT_SAMPLE_RATE: "24000"
+  
+  resources:
+    memory_gb: 2
+    gpu: false  # API-based, no local GPU needed
+    cpu_cores: 2
+  
+  lifecycle: "session"
+  startup_timeout_sec: 60  # API calls can take 10-30 seconds
+
+# Tool definitions
+tools:
+  - name: "omni_caption"
+    description: "Generate text caption for an audio file using Qwen3-Omni"
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to caption"
+        prompt:
+          type: string
+          description: "Prompt for captioning task"
+          default: "Describe this audio in detail."
+      required: ["audio_path"]
+  
+  - name: "omni_caption_with_audio"
+    description: "Generate caption + audio response for an audio file"
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to caption"
+        prompt:
+          type: string
+          description: "Prompt for captioning task"
+          default: "Describe this audio in detail."
+        voice:
+          type: string
+          description: "Voice for audio response (e.g., 'Cherry')"
+          default: "Cherry"
+        output_audio_path:
+          type: string
+          description: "Path to save the generated audio response"
+          default: ""
+      required: ["audio_path"]
+  
+  - name: "verify_audio_quality"
+    description: "Verify audio quality after enhancement/processing by analyzing spectrogram with VLM. Generates spectrogram and checks for artifacts, distortion, or quality issues."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the processed/enhanced audio file to verify (REQUIRED)"
+        reference_audio_path:
+          type: string
+          description: "Optional: Path to original audio for comparison"
+        verification_prompt:
+          type: string
+          description: "Specific instructions on what to check (e.g., 'Check for denoising artifacts', 'Compare with reference for content loss')"
+      required: ["audio_path", "verification_prompt"]
+
+  - name: "inspect_audio_plots"
+    description: "Generate one combined audio-plot image and ask the configured VLM for bounded visual-acoustic evidence. Useful for visible structure only: activity, silence/gaps, rough loudness changes, transients, rough event boundaries, spectral brightness/muffling, and coarse rhythm; not semantic answering."
+    input_schema:
+      type: object
+      properties:
+        audio_path:
+          type: string
+          description: "Path to the audio file to inspect"
+        question:
+          type: string
+          description: "Original user question for context only"
+        analysis_focus:
+          type: string
+          description: "Specific visual-acoustic uncertainty to inspect"
+        plot_types:
+          type: array
+          items:
+            type: string
+            enum: ["waveform", "mel_spectrogram", "rms_energy", "onset_envelope", "spectral_rolloff", "cqt_chroma", "bpm_curve"]
+          description: "Optional selected plot rows. Defaults to waveform, mel_spectrogram, rms_energy, onset_envelope, spectral_rolloff."
+        time_range:
+          type: object
+          properties:
+            start:
+              type: number
+            end:
+              type: number
+          description: "Optional time range in seconds to crop before plotting"
+      required: ["audio_path", "question", "analysis_focus"]

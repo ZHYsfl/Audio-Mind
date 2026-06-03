@@ -1,0 +1,43 @@
+[project]
+name = "fireredasr2s-tool"
+version = "1.0.0"
+description = "FireRedASR2S AED ASR tool for Audio Agent Framework"
+requires-python = ">=3.11"
+authors = [
+    {name = "Audio Agent Team"}
+]
+
+# Core dependencies - let fireredasr2s handle torch/transformers versions
+dependencies = [
+    "kaldi-native-fbank>=1.15",
+    "peft>=0.13.2",
+    # FireRedASR2S from GitHub - this will bring in its own deps
+    "fireredasr2s @ git+https://github.com/FireRedTeam/FireRedASR2S.git",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+# Build system (required by PEP 518)
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# setuptools configuration
+[tool.setuptools]
+py-modules = ["server", "model"]
+
+# uv-specific configuration
+[tool.uv]
+# allow-prereleases = true
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchaudio = { index = "pytorch-cpu" }

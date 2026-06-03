@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wespeaker-tool"
+version = "1.0.0"
+description = "Speaker verification using WeSpeaker for Audio Agent Framework"
+requires-python = ">=3.11"
+authors = [
+    {name = "Audio Agent Team"}
+]
+dependencies = [
+    "wespeaker @ git+https://github.com/wenet-e2e/wespeaker.git@c92349a14d6b426808c4e09b8b12e076864dfc11",
+    "torch==2.1.2",
+    "torchaudio==2.1.2",
+    "onnxruntime>=1.15",
+    "soundfile>=0.12",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "tqdm>=4.65",
+    "pyyaml>=6.0",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[tool.setuptools]
+py-modules = ["server", "model"]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchaudio = { index = "pytorch-cpu" }

@@ -1,0 +1,48 @@
+[project]
+name = "asr-qwen3-tool"
+version = "1.0.0"
+description = "ASR using Qwen3-ASR-1.7B model for the Audio Agent Framework"
+requires-python = ">=3.11"
+authors = [
+    {name = "Audio Agent Team"}
+]
+
+# Dependencies for Qwen3-ASR
+# The qwen-asr package provides the official Qwen3-ASR implementation
+# IMPORTANT: For GPU support, install PyTorch with CUDA 12.1:
+#   uv pip install torch==2.4.0 --index-url https://download.pytorch.org/whl/cu121
+# Or use: torch==2.4.0+cu121 if your package manager supports it
+dependencies = [
+    "qwen-asr",  # Official Qwen3-ASR package
+    "torch==2.4.0",
+    "transformers>=4.40.0",
+    "librosa>=0.10.0",
+    "soundfile>=0.12.0",
+    "accelerate>=0.25.0",  # For device_map support
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+# Build system (required by PEP 518)
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# setuptools configuration
+[tool.setuptools]
+py-modules = ["server", "model"]
+
+# uv-specific configuration
+[tool.uv]
+# allow-prereleases = true
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }

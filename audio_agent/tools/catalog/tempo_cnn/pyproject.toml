@@ -1,0 +1,16 @@
+[project]
+name = "tempo-cnn-tool"
+version = "1.0.0"
+description = "Tempo-CNN musical tempo estimation tool for the Audio Agent Framework"
+requires-python = ">=3.11"
+dependencies = [
+    "tempocnn==0.0.8",
+    "soundfile>=0.12.1",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["server", "model"]

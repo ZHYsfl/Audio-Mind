@@ -1,0 +1,90 @@
+{
+  "timestamp": "2024-03-27T21:30:00Z",
+  "tool_id": "",
+  "phase": "phase_1",
+  "artifacts": {
+    "required": {
+      "model.spec.yaml": {
+        "path": "audio_agent/tools/catalog/{tool}/model.spec.yaml",
+        "present": true
+      },
+      "backend_choice.json": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/backend_choice.json",
+        "present": true
+      },
+      "build.log": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/build.log",
+        "present": true
+      },
+      "validation.log": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/validation.log",
+        "present": true
+      },
+      "verdict.json": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/verdict.json",
+        "present": true
+      },
+      "wrapper": {
+        "path": "audio_agent/tools/catalog/{tool}/server.py",
+        "present": true
+      },
+      "artifact_manifest.json": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/artifact_manifest.json",
+        "present": true
+      }
+    },
+    "conditional": {
+      "spec_validation.json": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/spec_validation.json",
+        "present": false,
+        "condition": "VALIDATE_SPEC executed"
+      },
+      "preflight_summary.json": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/preflight_summary.json",
+        "present": false,
+        "condition": "preflight executed"
+      },
+      "weights_manifest.json": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/weights_manifest.json",
+        "present": false,
+        "condition": "weights.required == true"
+      },
+      "failure_classification.json": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/failure_classification.json",
+        "present": false,
+        "condition": "DIAGNOSE executed"
+      },
+      "retry_recommendation.json": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/retry_recommendation.json",
+        "present": false,
+        "condition": "REPLAN executed"
+      },
+      "escalation.json": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/escalation.json",
+        "present": false,
+        "condition": "escalation triggered"
+      },
+      "patch_report.json": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/patch_report.json",
+        "present": false,
+        "condition": "upstream/config patch applied"
+      },
+      "uv.lock": {
+        "path": "audio_agent/tools/catalog/{tool}/uv.lock",
+        "present": false,
+        "condition": "backend == 'uv'"
+      }
+    },
+    "optional": {
+      "performance_notes.md": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/performance_notes.md",
+        "present": false
+      },
+      "wrapper_notes.md": {
+        "path": "audio_agent/tools/catalog/{tool}/artifacts/wrapper_notes.md",
+        "present": false
+      }
+    }
+  },
+  "overall": "complete"
+}

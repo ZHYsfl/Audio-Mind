@@ -1,0 +1,57 @@
+tool_id: ffmpeg
+tool_name: FFmpeg
+task_type: utility
+deployment_type: local
+
+repo:
+  url: https://ffmpeg.org/
+  commit: null
+  description: FFmpeg is a complete, cross-platform solution to record, convert and stream audio and video.
+
+weights:
+  source: none
+  local_path: null
+  required: false
+
+environment:
+  preferred_backend: uv
+  python_version: "3.11"
+  requires_gpu: false
+  system_packages:
+    - ffmpeg
+
+entrypoints:
+  import_test: "from model import FFmpegWrapper"
+  load_test: "from model import FFmpegWrapper; w = FFmpegWrapper(); w.load()"
+  infer_test: |
+    from model import FFmpegWrapper
+    w = FFmpegWrapper()
+    w.predict(
+      'tests/fixtures/shared/mir/rhythm_22k_15s.wav',
+      '/tmp/ffmpeg_test_output.wav',
+      start_time=0,
+      duration=3,
+      sample_rate=16000,
+      channels=1
+    )
+
+fixture:
+  audio: tests/fixtures/shared/mir/rhythm_22k_15s.wav
+  task_specific: false
+  fallback_allowed: true
+
+io_contract:
+  input_type: audio_path
+  output_type: json
+  primary_field: output_path
+  required_fields:
+    - output_path
+  nonempty_fields:
+    - output_path
+  json_serializable: true
+
+acceptance:
+  must_import: true
+  must_load: true
+  must_infer: true
+  must_return_nonempty: true
