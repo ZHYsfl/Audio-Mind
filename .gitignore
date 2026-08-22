@@ -112,3 +112,5 @@ temp/
 paper/
 benchmark_meta/
 reasoning_quality_evaluation/
+
+.uv/
