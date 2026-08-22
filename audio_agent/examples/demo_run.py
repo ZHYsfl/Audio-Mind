@@ -174,6 +174,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum tokens to generate (default: 4096).",
     )
     parser.add_argument(
+        "--timeout",
+        type=float,
+        default=120.0,
+        help="API request timeout in seconds for frontend/planner calls (default: 120).",
+    )
+    parser.add_argument(
         "--max-steps",
         type=int,
         default=10,
@@ -261,6 +267,7 @@ async def amain() -> int:
             base_url=args.base_url,
             temperature=args.temperature,
             max_tokens=args.max_tokens,
+            timeout=args.timeout,
         )
         planner = OpenAICompatiblePlanner(
             model=args.planner_model,
@@ -269,6 +276,7 @@ async def amain() -> int:
             enable_thinking=args.enable_thinking,
             temperature=args.temperature,
             max_tokens=args.max_tokens,
+            timeout=args.timeout,
         )
         registry = ToolRegistry()
         fuser = DefaultEvidenceFuser()
@@ -319,6 +327,7 @@ async def amain() -> int:
     print(f"Frontend model: {args.frontend_model} (API)")
     print(f"Planner model: {args.planner_model} (API)")
     print(f"Enable thinking: {args.enable_thinking}")
+    print(f"API timeout: {args.timeout:.0f}s")
     
     print_separator("Running Agent")
     
