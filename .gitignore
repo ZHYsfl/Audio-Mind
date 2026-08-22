@@ -46,6 +46,10 @@ condaenv.*.requirements.txt
 .hf_cache/
 .artifacts/
 
+# API keys / secrets (never commit)
+.env
+.env.*
+
 # Downloaded models (pre-downloaded to avoid re-downloading on every login)
 models/
 

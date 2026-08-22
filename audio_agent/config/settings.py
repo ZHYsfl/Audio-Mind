@@ -7,7 +7,13 @@ Uses Pydantic for validation and environment variable support.
 from pathlib import Path
 from typing import Literal
 
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field
+
+# Load repo-root .env (DASHSCOPE_API_KEY etc.) into the environment.
+# `load_dotenv()` searches upward from this file's directory, so it works
+# regardless of the current working directory.
+load_dotenv()
 
 
 def default_planner_tool_inventory_path() -> str:

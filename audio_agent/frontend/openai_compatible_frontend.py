@@ -53,6 +53,7 @@ class OpenAICompatibleFrontend(BaseModelFrontend):
         temperature: Sampling temperature (0.0 to 2.0)
         max_tokens: Maximum tokens to generate
         timeout: API request timeout in seconds
+        max_retries: Number of retries (plus the initial attempt) for transient API failures
         direct_answer: If True, answer the question directly from the audio (no QoP caption)
     """
 
@@ -421,34 +422,42 @@ class OpenAICompatibleFrontend(BaseModelFrontend):
         model_input.messages = messages
         model_input.metadata["input_format"] = FrontendInputFormat.API_MODEL.value
 
-        # Make API call (non-streaming for final answer reliability)
+        # Make API call (non-streaming for final answer reliability) with retries.
+        # The base class wraps generate_final_answer() in _call_with_retries, but this
+        # API override replaces the whole method (audio blocks -> base64), so the retry
+        # must be applied here as well — otherwise a single network blip (e.g. mid-read
+        # SSL EOF) fails the entire run instead of retrying.
         client = self.model_handle
-        try:
-            response = client.chat.completions.create(
-                model=self._model,
-                messages=model_input.messages,
-                temperature=self._temperature,
-                max_tokens=self._max_tokens,
-                stream=False,
-                modalities=["text"],
-            )
-        except Exception as e:
-            raise FrontendError(
-                f"API call failed for final answer: {e}",
-                details={"model": self._model, "error_type": type(e).__name__},
-            ) from e
 
-        if not response.choices or len(response.choices) == 0:
-            raise FrontendError(
-                "Empty response from API",
-                details={"model": self._model},
-            )
+        def _call() -> str:
+            try:
+                response = client.chat.completions.create(
+                    model=self._model,
+                    messages=model_input.messages,
+                    temperature=self._temperature,
+                    max_tokens=self._max_tokens,
+                    stream=False,
+                    modalities=["text"],
+                )
+            except Exception as e:
+                raise FrontendError(
+                    f"API call failed for final answer: {e}",
+                    details={"model": self._model, "error_type": type(e).__name__},
+                ) from e
 
-        text_response = response.choices[0].message.content or ""
-        if not text_response.strip():
-            raise FrontendError(
-                "API returned empty final answer",
-                details={"model": self._model},
-            )
+            if not response.choices or len(response.choices) == 0:
+                raise FrontendError(
+                    "Empty response from API",
+                    details={"model": self._model},
+                )
 
-        return text_response.strip()
+            text_response = response.choices[0].message.content or ""
+            if not text_response.strip():
+                raise FrontendError(
+                    "API returned empty final answer",
+                    details={"model": self._model},
+                )
+
+            return text_response.strip()
+
+        return self._call_with_retries(_call, "generate_final_answer()")
