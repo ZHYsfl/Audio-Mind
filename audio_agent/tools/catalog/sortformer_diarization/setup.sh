@@ -38,14 +38,13 @@ echo "Creating virtual environment with Python 3.11..."
 $UV venv --python 3.11
 
 # Install PyTorch with CUDA (must be before NeMo).
-# NOTE: NeMo 2.7+ requires torch>=2.5 for nn.Buffer; we pin 2.5.1. Default CUDA
-# variant is cu121, which matches libcudart 12.x available on most current GPU
-# installs. Override TORCH_CUDA_VARIANT to e.g. "cu124" or "cu118" for a
-# different host ABI.
-TORCH_CUDA_VARIANT="${TORCH_CUDA_VARIANT:-cu121}"
-echo "Installing PyTorch (torch==2.5.1+${TORCH_CUDA_VARIANT})..."
+# Blackwell (RTX 50-series, sm_120) requires cu128 + torch>=2.7; we pin 2.8.0.
+# Override TORCH_CUDA_VARIANT for a different host ABI (e.g. "cu121" on older GPUs).
+TORCH_CUDA_VARIANT="${TORCH_CUDA_VARIANT:-cu128}"
+TORCH_VERSION="${TORCH_VERSION:-2.8.0}"
+echo "Installing PyTorch (torch==${TORCH_VERSION}+${TORCH_CUDA_VARIANT})..."
 $UV pip install --python .venv/bin/python \
-    "torch==2.5.1+${TORCH_CUDA_VARIANT}" "torchaudio==2.5.1+${TORCH_CUDA_VARIANT}" \
+    "torch==${TORCH_VERSION}+${TORCH_CUDA_VARIANT}" "torchaudio==${TORCH_VERSION}+${TORCH_CUDA_VARIANT}" \
     --index-url "https://download.pytorch.org/whl/${TORCH_CUDA_VARIANT}"
 
 # Install ModelScope SDK for checkpoint download
@@ -63,9 +62,9 @@ $UV pip install --python .venv/bin/python -e .
 # NeMo's transitive deps tend to upgrade torch/torchaudio. Re-pin to the same
 # CUDA variant we picked above so the resulting wheels still match the host's
 # libcudart.
-echo "Re-pinning torch + torchaudio to ${TORCH_CUDA_VARIANT} (overriding any NeMo-driven upgrade)..."
+echo "Re-pinning torch + torchaudio to ${TORCH_VERSION}+${TORCH_CUDA_VARIANT} (overriding any NeMo-driven upgrade)..."
 $UV pip install --python .venv/bin/python --reinstall \
-    "torch==2.5.1+${TORCH_CUDA_VARIANT}" "torchaudio==2.5.1+${TORCH_CUDA_VARIANT}" \
+    "torch==${TORCH_VERSION}+${TORCH_CUDA_VARIANT}" "torchaudio==${TORCH_VERSION}+${TORCH_CUDA_VARIANT}" \
     --index-url "https://download.pytorch.org/whl/${TORCH_CUDA_VARIANT}"
 
 echo ""

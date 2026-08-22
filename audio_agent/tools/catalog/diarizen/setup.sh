@@ -57,13 +57,20 @@ echo "Creating virtual environment with Python 3.10..."
 conda create --prefix ./.venv python=3.10 -y
 
 # Install PyTorch with CUDA (Step 2 - MUST be before DiariZen!)
+# Blackwell (RTX 50-series, sm_120) needs cu128 + torch>=2.7; pin 2.8.0.
 echo "Installing PyTorch with CUDA support..."
-.venv/bin/pip install torch==2.4.0 torchaudio==2.4.0 --index-url https://download.pytorch.org/whl/cu121
+.venv/bin/pip install torch==2.8.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/cu128
 
 # Install DiariZen from submodule (Step 3)
 echo "Installing DiariZen from submodule..."
-git clone https://github.com/BUTSpeechFIT/DiariZen.git
-mv DiariZen diarizen_src
+# diarizen_src is vendored in the repo. Only clone if it is missing (e.g. a
+# clean checkout that did not ship the sources). Without this guard `git clone`
+# fails on an existing directory and `set -e` aborts the whole setup before the
+# package is installed.
+if [ ! -d "diarizen_src/diarizen" ]; then
+    git clone https://github.com/BUTSpeechFIT/DiariZen.git
+    mv DiariZen diarizen_src
+fi
 cd diarizen_src
 ../.venv/bin/pip install -r requirements.txt && ../.venv/bin/pip install -e .
 
@@ -83,7 +90,7 @@ echo "Installing missing dependencies..."
 
 # Install remaining dependencies from pyproject.toml
 echo "Installing remaining dependencies..."
-.venv/bin/pip install huggingface-hub>=0.20.0
+.venv/bin/pip install "huggingface-hub>=0.20.0"
 
 # Install the local package (server code)
 echo "Installing server package..."

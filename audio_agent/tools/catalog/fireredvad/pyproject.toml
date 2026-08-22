@@ -20,9 +20,10 @@ dependencies = [
 [tool.setuptools]
 py-modules = ["server", "model"]
 
+# Blackwell (RTX 50-series, sm_120) needs CUDA 12.8+ torch wheels.
 [[tool.uv.index]]
 name = "pytorch-gpu"
-url = "https://download.pytorch.org/whl/cu124"
+url = "https://download.pytorch.org/whl/cu128"
 explicit = true
 
 [tool.uv.sources]

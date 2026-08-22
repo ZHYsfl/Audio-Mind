@@ -9,12 +9,11 @@ authors = [
 
 # Dependencies for Qwen3-ASR
 # The qwen-asr package provides the official Qwen3-ASR implementation
-# IMPORTANT: For GPU support, install PyTorch with CUDA 12.1:
-#   uv pip install torch==2.4.0 --index-url https://download.pytorch.org/whl/cu121
-# Or use: torch==2.4.0+cu121 if your package manager supports it
+# Blackwell (RTX 50-series, sm_120) needs CUDA 12.8+ torch wheels.
 dependencies = [
     "qwen-asr",  # Official Qwen3-ASR package
-    "torch==2.4.0",
+    "torch>=2.8.0",
+    "torchaudio>=2.8.0",
     "transformers>=4.40.0",
     "librosa>=0.10.0",
     "soundfile>=0.12.0",
@@ -39,10 +38,12 @@ py-modules = ["server", "model"]
 [tool.uv]
 # allow-prereleases = true
 
+# Blackwell (RTX 50-series, sm_120) needs CUDA 12.8+ torch wheels.
 [[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
 explicit = true
 
 [tool.uv.sources]
-torch = { index = "pytorch-cpu" }
+torch = { index = "pytorch-cu128" }
+torchaudio = { index = "pytorch-cu128" }

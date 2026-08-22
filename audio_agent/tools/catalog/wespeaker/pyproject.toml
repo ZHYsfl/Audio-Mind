@@ -12,8 +12,8 @@ authors = [
 ]
 dependencies = [
     "wespeaker @ git+https://github.com/wenet-e2e/wespeaker.git@c92349a14d6b426808c4e09b8b12e076864dfc11",
-    "torch==2.1.2",
-    "torchaudio==2.1.2",
+    "torch>=2.8.0",
+    "torchaudio>=2.8.0",
     "onnxruntime>=1.15",
     "soundfile>=0.12",
     "numpy>=1.24",
@@ -31,11 +31,12 @@ dev = [
 [tool.setuptools]
 py-modules = ["server", "model"]
 
+# Blackwell (RTX 50-series, sm_120) needs CUDA 12.8+ torch wheels.
 [[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
 explicit = true
 
 [tool.uv.sources]
-torch = { index = "pytorch-cpu" }
-torchaudio = { index = "pytorch-cpu" }
+torch = { index = "pytorch-cu128" }
+torchaudio = { index = "pytorch-cu128" }
