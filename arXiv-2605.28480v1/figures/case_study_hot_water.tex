@@ -1,0 +1,121 @@
+\begin{tikzpicture}[
+  font=\small,
+  panel/.style={
+    draw=black!35,
+    rounded corners=2pt,
+    line width=0.5pt,
+    fill=black!2,
+    inner sep=0pt
+  },
+  header/.style={
+    font=\bfseries,
+    anchor=north west,
+    align=left
+  },
+  box/.style={
+    draw=black!25,
+    rounded corners=2pt,
+    line width=0.45pt,
+    fill=white,
+    align=left,
+    inner sep=5pt
+  },
+  badbox/.style={
+    draw=yellow!55!black,
+    rounded corners=2pt,
+    line width=0.55pt,
+    fill=yellow!22,
+    align=left,
+    inner sep=5pt
+  },
+  unsurebox/.style={
+    draw=blue!50!black,
+    rounded corners=2pt,
+    line width=0.55pt,
+    fill=blue!8,
+    align=left,
+    inner sep=5pt
+  },
+  toolbox/.style={
+    draw=teal!55!black,
+    rounded corners=2pt,
+    line width=0.55pt,
+    fill=teal!7,
+    align=left,
+    inner sep=5pt
+  },
+  answerbox/.style={
+    draw=green!45!black,
+    rounded corners=2pt,
+    line width=0.65pt,
+    fill=green!9,
+    align=left,
+    inner sep=5pt
+  },
+  arrow/.style={-{Latex[length=2.2mm,width=1.6mm]}, thick, draw=black!45}
+]
+
+\node[panel, minimum width=6.4cm, minimum height=8.65cm, anchor=north west] (directPanel) at (0,0) {};
+\node[panel, minimum width=10.5cm, minimum height=8.65cm, anchor=north west] (agentPanel) at (6.75cm,0) {};
+
+\node[header] at ([xshift=0.20cm,yshift=-0.25cm]directPanel.north west)
+  {Qwen3.5-Omni};
+\node[anchor=north west, font=\scriptsize, text=black!65, align=left]
+  at ([xshift=0.20cm,yshift=-0.58cm]directPanel.north west)
+  {Commits to an unsupported acoustic cue};
+
+\node[box, text width=5.75cm, minimum height=1.42cm, anchor=north west] (directPred)
+  at ([xshift=0.20cm,yshift=-1.05cm]directPanel.north west)
+  {\textbf{Prediction}\\
+   First segment = hot water\\
+   Second segment = cold water\\
+   \textcolor{red!70!black}{Incorrect}};
+
+\node[badbox, text width=5.75cm, minimum height=1.58cm, anchor=north west] (directHallucination)
+  at ([xshift=0.20cm,yshift=-2.85cm]directPanel.north west)
+  {\textbf{Highlighted hallucinated cue}\\
+   ``The first pouring segment ... \textbf{fizzing, crackling, or sizzling}''\\[2pt]
+   ``The second ... \textbf{smoother and quieter}''};
+
+\node[box, text width=5.75cm, minimum height=1.72cm, anchor=north west] (directIssue)
+  at ([xshift=0.20cm,yshift=-5.05cm]directPanel.north west)
+  {\textbf{Failure mode}\\
+   The model gives a plausible physical explanation, but the claimed high-frequency cue is assigned to the wrong segment.};
+
+\node[header] at ([xshift=0.20cm,yshift=-0.25cm]agentPanel.north west)
+  {Audio-Mind workflow};
+\node[anchor=north west, font=\scriptsize, text=black!65, align=left]
+  at ([xshift=0.20cm,yshift=-0.58cm]agentPanel.north west)
+  {Uncertainty is exposed, then resolved with tools and targeted re-listening};
+
+\node[unsurebox, text width=9.85cm, minimum height=1.58cm, anchor=north west] (caption)
+  at ([xshift=0.20cm,yshift=-1.05cm]agentPanel.north west)
+  {\textbf{1. Question-oriented frontend caption}\\
+   Locates Segment 1 at 3--8s and Segment 2 at 19--24s.\\
+   States: ``\textbf{acoustic evidence is insufficient}'' and ``\textbf{no audible steam hiss}''.\\
+   Forced hypothesis confidence: \textbf{0.3}.};
+
+\node[toolbox, text width=9.85cm, minimum height=1.62cm, anchor=north west] (tools)
+  at ([xshift=0.20cm,yshift=-3.18cm]agentPanel.north west)
+  {\textbf{2. Evidence log}\\
+   \texttt{trim\_audio}: creates \texttt{audio\_1} (first pour) and \texttt{audio\_2} (second pour).\\
+   \texttt{analyze\_spectral\_features}: Segment 2 has higher centroid
+   (5195 vs. 4013 Hz), rolloff (10844 vs. 8921 Hz), and flatness (0.011 vs. 0.004).};
+
+\node[unsurebox, text width=9.85cm, minimum height=1.44cm, anchor=north west] (followup)
+  at ([xshift=0.20cm,yshift=-5.35cm]agentPanel.north west)
+  {\textbf{3. Targeted frontend follow-up}\\
+   Re-listens to isolated segments with spectral evidence.\\
+   States: ``The second audio segment contains ... \textbf{high-frequency hissing and sizzling}''.};
+
+\node[answerbox, text width=9.85cm, minimum height=0.84cm, anchor=north west] (answer)
+  at ([xshift=0.20cm,yshift=-7.45cm]agentPanel.north west)
+  {\textbf{4. Final answer}\\
+   \textbf{Second segment = hot water; first segment = cold water.}
+   \hfill \textcolor{green!45!black}{Correct}};
+
+\draw[arrow] (caption.south) -- (tools.north);
+\draw[arrow] (tools.south) -- (followup.north);
+\draw[arrow] (followup.south) -- (answer.north);
+
+\end{tikzpicture}

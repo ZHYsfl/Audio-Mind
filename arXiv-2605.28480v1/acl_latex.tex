@@ -1,0 +1,621 @@
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[preprint]{acl}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+
+\newcommand{\ours}{\textsc{Audio-Mind}}
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{Audio-Mind: An Auditable Agentic Framework for Audio Understanding}
+
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a separate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+
+% \author{Yucheng Wang \\
+%   ETH Zurich \\
+%   \texttt{yuchwang@ethz.ch} \\\And
+%   Second Author \\
+%   Affiliation / Address line 1 \\
+%   Affiliation / Address line 2 \\
+%   Affiliation / Address line 3 \\
+%   \texttt{email@domain} \\}
+
+\author{
+  \textbf{Yucheng Wang\textsuperscript{1,2\textdagger}} \quad
+  \textbf{Jing Peng\textsuperscript{3\textdagger}} \quad
+  \textbf{Hanqi Li\textsuperscript{3}} \quad
+  \textbf{Chenghao Wang\textsuperscript{4}} \\
+  \textbf{Wenming Tu\textsuperscript{3}} \quad
+  \textbf{Yu Xi\textsuperscript{3}} \quad
+  \textbf{Zhaokai Sun\textsuperscript{5}} \quad
+  \textbf{Kai Yu\textsuperscript{3}} \quad
+  \textbf{Shuai Wang\textsuperscript{1\textdaggerdbl}} \\
+  \\[0.6ex]
+  \normalfont\small
+  \textsuperscript{1}School of Intelligence Science and Technology, Nanjing University, China \\
+  \normalfont\small
+  \textsuperscript{2}Department of Computer Science, ETH Zürich, Switzerland \\
+  \normalfont\small
+  \textsuperscript{3}X-LANCE Lab, School of Computer Science, Shanghai Jiao Tong University, China \\
+  \normalfont\small
+  \textsuperscript{4}School of Automation Science and Engineering, Xi'an Jiaotong University, China \\
+  \normalfont\small
+  \textsuperscript{5}School of Computer Science, Northwestern Polytechnical University, China
+}
+
+\begin{document}
+\maketitle
+\begingroup
+\renewcommand{\thefootnote}{\textdagger}
+\footnotetext{Equal contribution.}
+\renewcommand{\thefootnote}{\textdaggerdbl}
+\footnotetext{Corresponding author.}
+
+\endgroup
+\begin{abstract}
+Audio agents extend large audio-language models (LALMs) by decomposing audio questions into tool calls, intermediate evidence, and iterative reasoning steps. However, as LALMs become stronger, the key challenge shifts from enabling tool use to determining when agentic evidence acquisition genuinely benefits audio understanding. We propose \ours{}, an auditable and pluggable framework for conditional evidence acquisition in audio understanding. \ours{} dynamically combines a strong frontend with planner-guided tool use, preserving frontend judgment when initial evidence is sufficient while acquiring bounded external evidence for questions with unresolved evidence gaps. Experiments on MMAR and MSU-Bench show that \ours{} outperforms prior audio-agent baselines, reaching 80.4\% accuracy on MMAR and 82.8\% accuracy on MSU-Bench. A matched-backbone comparison highlights why this design matters: under strong audio frontends, agentic decomposition can become an orchestration bottleneck when the workflow does not preserve the frontend’s holistic audio-grounded judgment. Beyond accuracy, \ours{} produces higher-quality, auditable reasoning traces that expose uncertainty, tool evidence, and answer rationales, offering a potential basis for more reliable audio-QA annotation and error analysis.\footnote{Our \href{https://github.com/DELTA-DoubleWise/Audio-Mind}{code} is publicly available.}
+\end{abstract}
+
+\section{Introduction}
+
+Large audio-language models (LALMs) are moving audio understanding beyond task-specific recognition pipelines. Recent systems increasingly accept speech, environmental sounds, and music as native inputs to language models, allowing users to ask natural-language questions over diverse acoustic scenes~\citep{peng2024survey_speech_llms_understanding,cui2024recent_speechlm_survey}. Recent LALM and omni-audio model families have expanded this capability across speech recognition, audio captioning, speaker and scene understanding, music analysis, and audio-grounded dialogue~\citep{chu2024qwen2audio,ding2025kimi,zhang2025mimo,huang2025step,xu2025qwen3,qwen2026qwen35omni}. As these models become stronger, they provide increasingly capable frontend perception and contextual reasoning for audio understanding.
+
+This progress has also encouraged researchers to introduce agentic mechanisms into audio understanding. Existing systems use LLM program generation to construct speech-processing toolchains, coordinate audio models or external tools for multi-step reasoning, transform audio reasoning into iterative textual evidence refinement, or learn policies for when to consult external perception \citep{kuan2024speechcopilot,lee2025audiomaestro,wijngaard2025audiotoolagent,rong2025audiogenie,chen2026audiorouter,tong2026autagent,wan2026speechhands,xiong2025thinkingwithsound,shao2026listeningwithtime}. Together, these studies establish audio agents as an emerging research direction for extending LALMs beyond single-pass audio question answering.
+
+However, much of the current audio-agent literature rests on a premise that becomes less secure as LALMs improve: agentic decomposition is often expected to add useful evidence beyond direct LALM inference. This pressure is already visible in recent Qwen-Omni models which report strong performance not only on general audio understanding benchmarks, but also on ASR, speech translation, and music understanding tasks that have traditionally been served by specialized audio systems~\citep{xu2025qwen3,qwen2026qwen35omni}. \textbf{Under such a strong frontend, the value of external tools depends less on their existence than on whether their outputs are more reliable, more precise, or more targeted than the model's own perception.} This issue is even sharper because many audio properties, such as tempo or chord labels, are inherently ambiguous, convention-dependent, or only partially captured by tool outputs \citep{chiu2022analysis,koops2017chord}. Audio-agent systems therefore need to reason more carefully about when and how to leverage tools, rather than treating tool invocation itself as the source of improvement.
+
+This observation motivates a shift from tool routing to conditional evidence acquisition. In this view, tools are not selected merely because they match a task name; they are invoked only when their outputs can provide bounded, task-relevant evidence that complements the frontend model. A prerequisite for such an agent is therefore a planner-facing description of what each external operation is allowed to contribute: whether it directly provides an audio observation, creates a derived artifact for later inspection, or only validates input assumptions. Making these roles explicit allows the planner to distinguish evidence from preparation, measurements from interpretations, and reliable tool outputs from signals that should remain uncertain.
+
+
+To operationalize this view, we propose \ours{}, an auditable and pluggable framework for conditional evidence acquisition in audio understanding. \ours{} preserves an audio-capable LALM frontend as the main source of audio-grounded judgment, while a text-LLM planner decides whether bounded tools or targeted re-listening are needed to address a concrete evidence gap. The resulting evidence state records frontend observations, planner decisions, tool outputs, re-listening results, and final rationales, making the answer path auditable rather than treating agentic decomposition as an automatic improvement. This structure also enables higher-quality reasoning traces: by exposing uncertainty, evidence provenance, and intermediate decisions, \ours{} produces explanations that are easier to inspect, compare, and use for audio-QA error analysis.
+
+Our contributions are summarized as follows:
+
+\begin{itemize}
+    \item We revisit tool-augmented audio-agent reasoning under strong LALMs, showing that agentic orchestration should be treated as conditional evidence acquisition rather than an automatic improvement over end-to-end LALM inference.
+
+    \item We introduce \ours{}, an auditable and pluggable agentic audio understanding framework with a reliability-aware audio-tool taxonomy and boundary design. The framework separates frontend perception, planning, tool execution, targeted re-listening, evidence fusion, and answer validation in an explicit evidence state.
+
+    \item We evaluate \ours{} on MMAR and MSU-Bench, showing both accuracy gains and improved reasoning traces. \ours{} outperforms prior audio-agent baselines, while matched-backbone comparisons show that existing agentic workflows can become orchestration bottlenecks when they fail to preserve strong frontend perception. Beyond final-answer accuracy, \ours{} produces more auditable and higher-quality reasoning traces for audio-QA inspection and error analysis.
+\end{itemize}
+\section{Related Work}
+\label{sec:related_work}
+
+\subsection{Large Audio-Language Models and Audio Understanding Benchmarks}
+
+Recent work on speech and audio language models has moved from task-specific pipelines toward general-purpose models that accept audio as a native input modality \citep{peng2024survey_speech_llms_understanding,cui2024recent_speechlm_survey}. Models such as SALMONN~\citep{tang2023salmonn}, Qwen2-Audio~\citep{chu2024qwen2audio}, Kimi-Audio~\citep{ding2025kimi}, MiMo-Audio~\citep{zhang2025mimo}, Step-Audio~\citep{huang2025step}, and Audio Flamingo~\citep{kong2024audioflamingo,goel2025audioflamingo3} extend language-model interfaces to speech, sounds, music, and audio-grounded dialogue. More recent omni or reasoning-oriented systems, including Qwen3-Omni~\citep{xu2025qwen3}, Qwen3.5-Omni~\citep{qwen2026qwen35omni}, and Step-Audio-R1~\citep{stepfun2025stepaudior1}, further strengthen audio perception, interaction, and modality-grounded reasoning. These models define increasingly strong frontend baselines for evaluating whether audio-agent mechanisms add useful evidence beyond LALM inference.
+
+Evaluation has likewise moved beyond isolated recognition tasks. Recent benchmarks, including AIR-Bench~\citep{yang2024airbench}, MMAU~\citep{sakshi2024mmau}, MMAR~\citep{ma2025mmar}, MMAU-Pro~\citep{kumar2025mmaupro}, and MSU-Bench~\citep{wang2025msubench}, test increasingly heterogeneous forms of audio understanding, ranging from instruction following and audio reasoning to long-form, multi-audio, spatial, open-ended, and multi-talker scenarios. These benchmarks make strong LALM baselines essential, while also motivating systems that can expose intermediate evidence across diverse audio tasks.
+
+\subsection{Tool-Augmented and Agentic Audio Understanding}
+
+Building on general tool-using LLM agents that interleave reasoning with external actions \citep{yao2022react}, recent audio-agent systems adapt this paradigm to audio understanding. These systems explore different ways to integrate these tools with LALMs. Speech-Copilot~\citep{kuan2024speechcopilot} decomposes speech-processing instructions and generates programs over modular tools, while AudioToolAgent~\citep{wijngaard2025audiotoolagent} coordinates audio-language models and tool adapters through a central LLM agent. Audio-Maestro~\citep{lee2025audiomaestro} and AudioGenie-Reasoner~\citep{rong2025audiogenie} emphasize tool-augmented or multi-agent evidence construction for audio-language reasoning. Other work studies tool-use policy itself: AudioRouter~\citep{chen2026audiorouter} and AuTAgent~\citep{tong2026autagent} learn when and how to invoke tools through reinforcement learning, Speech-Hands~\citep{wan2026speechhands} frames external audio perception as a self-reflection decision, and Multi-Source Evidence Fusion~\citep{olev2026multisource} combines independent LALM observations with acoustic tools organized by reliability tiers. These works establish the promise of agentic audio understanding. However, they primarily study how to introduce or optimize external evidence use, while our work asks when such evidence should be acquired under strong audio frontends and treat tool use as conditional evidence acquisition rather than an automatic improvement over direct LALM inference.
+
+Adjacent systems also show that intermediate audio operations can support understanding even when they are not framed as general-purpose tool agents. Thinking with Sound~\citep{xiong2025thinkingwithsound} combines linguistic reasoning with on-the-fly audio-domain analysis and manipulation, while Listening with Time~\citep{shao2026listeningwithtime} uses global-to-local temporal reasoning with local audio evidence for long-form understanding. Relative to these systems, our framework makes the roles of such intermediate operations more explicit by distinguishing direct evidence extraction from audio transformation, and by exposing both through capability-bounded interfaces.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/architecture.pdf}
+  \caption{Architecture of \ours{}. The system first uses a planner-generated perception prompt to obtain question-oriented frontend evidence, then iteratively gathers additional evidence through tool calls or targeted frontend follow-up. Once the planner determines that the evidence is sufficient, the frontend model generates the final answer from the original audio and accumulated context, followed by format validation.}
+  \label{fig:architecture}
+\end{figure*}
+
+\section{Tools as Bounded Evidence Interfaces}
+\label{sec:audio_tools}
+
+Before presenting the full agent architecture, we first characterize the role of tool use in audio-agent reasoning. Audio tools play a different role in audio agents than tools usually play in language-only agents. Rather than only expanding the model's external action space, they often operate on the input signal itself: exposing a partial observation of the audio or reshaping the audio so that a later model or tool can inspect it more effectively. Therefore, we treat audio tools as evidence interfaces rather than unconditional substitutes for the frontend LALM.
+
+
+\subsection{Perception and Transformation Roles}
+\label{sec:audio_tools_as_evidence}
+
+Under this view, we distinguish two broad roles. \emph{Perception tools} extract observations from audio, such as transcripts, speaker turns, temporal boundaries, pitch, key, chords, or spectral measurements. These tools can support an answer when the question depends on a local, symbolic, or measurable cue. \emph{Transformation tools} modify the audio source itself, for example by trimming, denoising, separating, filtering, resampling, or converting channels. Their output is not usually evidence by itself; rather, it creates a better input for later perception by a tool or by the frontend model during targeted re-listening.
+
+This distinction matters because not every tool output should be interpreted in the same way. A transcript, segment boundary, acoustic measurement, or derived audio clip may provide strong support for some questions, but may become misleading if the planner treats it as evidence for a broader judgment than it can justify.
+
+\subsection{Tool Boundaries}
+\label{sec:tool_boundaries}
+
+Tool boundaries specify what kind of claim a tool output is allowed to support. This is necessary because the same low-level observation can be useful for one question and misleading for another. For example, a transcript can verify lexical content but not speaker identity, while a tempo, chord, or spectral estimate can provide measurable acoustic evidence but not a complete music-theoretic or perceptual judgment. Without such boundaries, an agent may convert a narrow measurement into an unsupported semantic conclusion simply because the output appears precise.
+
+These constraints should not be read as an argument against specialized tools. Rather, boundaries make tool evidence usable by specifying the conditions under which it should be trusted. Even when strong LALMs achieve higher aggregate scores on some audio benchmarks, a frontend LALM is optimized for broad audio-language behavior, while many tools are optimized for narrower interfaces and target scenes with explicit outputs. ASR and diarization systems, for example, may remain more dependable in matched settings such as meetings, interviews, or multi-speaker recordings, where their training objectives and output schemas directly target the needed evidence~\citep{shi2026qwen3asr,xu2025fireredasr,han2025efficient_diarization,park2025sortformer}. These outputs can be easier to inspect, compare, reuse, and pass to later stages than a free-form model response. We therefore treat tool use as conditional evidence acquisition: a tool is valuable when its bounded output provides verifiable support that the frontend either lacks, states uncertainly, or cannot express in the required structure.
+
+\begin{table*}[t]
+\small
+\centering
+\renewcommand{\arraystretch}{1.08}
+\setlength{\heavyrulewidth}{0.1em}
+\setlength{\lightrulewidth}{0.055em}
+\setlength{\cmidrulewidth}{0.035em}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.20\textwidth}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{0.28\textwidth}}
+\toprule
+\textbf{Category} & \textbf{Description} & \textbf{Representative tools} \\
+\midrule
+\multicolumn{3}{c}{\textbf{Transformation tools}} \\
+\cmidrule(lr){1-3}
+Audio derivation (8) & Creates derived audio by trimming, denoising, resampling, conversion, or separation to prepare better inputs for later tools or re-listening. & Time-range trimming; denoising; channel conversion \\
+\cmidrule(lr){1-3}
+Temporal segmentation (5) & Locates candidate speech, silence, event, or music regions when relevant time spans or boundaries need verification. & Audio segmentation; silence detection; VAD \\
+\midrule
+\multicolumn{3}{c}{\textbf{Perception tools}} \\
+\cmidrule(lr){1-3}
+Metadata validation (2) & Checks file-level duration, sampling, channel, and format facts to validate input assumptions rather than audio content. & Audio stream statistics; loading metadata \\
+\cmidrule(lr){1-3}
+Speech and speaker processing (9) & Verifies speech content, speaker counts, turns, or identity using ASR, diarization, VAD, and speaker verification. & ASR; diarization; speaker verification \\
+\cmidrule(lr){1-3}
+Acoustic/music feature analysis (12) & Provides supporting measurements such as pitch, spectrum, tempo, key, or chords. & Pitch analysis; tempo estimation; chord recognition \\
+\cmidrule(lr){1-3}
+Signal visualization inspection (2) & Inspects generated waveforms, spectrograms, or processing artifacts for bounded signal-level cues. & Audio-plot inspection; quality verification \\
+\bottomrule
+\end{tabularx}
+\caption{Planner-facing tool categories used by \ours{}. Numbers in parentheses indicate the number of planner-visible core tools in each category. }
+\label{tab:tool_categories}
+\end{table*}
+
+
+\section{Framework Architecture}
+\label{sec:method}
+
+\ours{} operationalizes conditional evidence acquisition with three design goals. First, it should preserve the frontend LALM when direct audio perception is already sufficient. Second, it should expose the unresolved evidence gap before invoking tools. Third, it should make each external operation bounded and inspectable, so that tool outputs, transformed audio artifacts, and re-listening results can be traced back to the decision that requested them.
+
+Figure~\ref{fig:architecture} illustrates the architecture of \ours{}. The system is organized as a stateful graph in which each module reads a shared evidence state, performs one bounded operation, and writes structured updates for later modules.
+
+\subsection{System Overview}
+\label{sec:system_overview}
+
+Given audio inputs $\mathcal{A}$ and a natural-language question $q$, the system aims to produce an answer $y$ that is grounded in the audio and satisfies the expected output format. The agent is organized around an explicit evidence state that records audio artifacts, frontend observations, planner decisions, tool outputs, evidence summaries, and format feedback. Each graph node reads this state, performs one bounded operation, and writes structured updates for later stages.
+
+In our default instantiation, \ours{} separates audio perception from textual orchestration. An audio-capable LALM serves as the frontend for initial perception, targeted re-listening, and final answer generation, while a text LLM serves as the planner for prompt construction, action selection, evidence summarization, and format checking. The shared evidence state keeps these roles pluggable: frontends, planners, tool executors, and checkers can be replaced as long as they preserve the same evidence contracts.
+
+\subsection{Question-Oriented Perception and Planning}
+\label{sec:perception_and_planning}
+
+The first stage is designed to avoid both generic captioning and premature tool use. Directly prompting the frontend with the original question can produce an overcommitted answer or omit the evidence needed for later verification. \ours{} instead asks the planner to generate a self-contained perception prompt that restates the question, names task-specific listening targets, and asks the frontend to report uncertainty. The frontend analyzes $\mathcal{A}$ under this prompt and returns structured evidence: a general description, relevant focus points, a preliminary answer when available, and uncertainty or verification needs.
+
+The planner treats the frontend caption as evidence rather than ground truth. It converts the caption into a lightweight plan that records the clarified intent, expected answer format, focus points, and candidate evidence operations. The plan does not execute tools; it only marks which claims appear answerable by direct perception and which may require verification.
+
+Both the caption and the plan are stored in the shared state. Each input audio file receives a stable identifier such as \texttt{audio\_0}, and any derived artifact created later is appended to the same audio list with its own identifier and provenance. This lets later decisions refer to original or transformed audio consistently while keeping the evidence path inspectable.
+
+\subsection{Evidence Acquisition Loop}
+\label{sec:evidence_loop}
+
+The evidence acquisition loop is the point where the agent decides whether additional evidence is worth obtaining. At each iteration, the planner observes the current evidence log, tool-call history, planner trace, available audio artifacts, and available tool inventory. It then emits exactly one action type: call one or more independent tools, request frontend follow-up on selected audio, proceed to final answer generation, or stop with an explicit failure. Each decision must include a short rationale, which is stored in the planner trace and shown back to the planner in later rounds. This makes tool use accountable to a stated evidence gap rather than to tool availability alone.
+
+External tools are exposed through the category-bounded inventory in Table~\ref{tab:tool_categories}. The inventory turns the tool-boundary discussion in Section~\ref{sec:audio_tools} into planner-facing guidance, so action selection depends on what evidence a tool can support rather than on tool names alone. Tool execution returns either an evidence item, a derived audio artifact, or both. This keeps analysis results and transformed inputs in the same shared state, allowing later decisions to use tool outputs without exposing low-level execution details.
+
+
+
+
+Frontend follow-up, or re-listening, is used when the unresolved question is better answered by direct perception on a better-selected input. This is especially useful after tools create a materially improved artifact, such as a trimmed segment containing the relevant event, or a separated speaker track that makes the target source easier to hear. The planner sends selected audio identifiers and a focused prompt to the frontend, and the resulting caption is appended as follow-up evidence. The system does not use re-listening as a generic fallback; it is reserved for cases where selection or transformation changes what the frontend can perceive.
+
+\begin{table*}[t]
+\small
+\centering
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Method} & \textbf{Sound} & \textbf{Music} & \textbf{Speech} & \textbf{So-Mu} & \textbf{So-Sp} & \textbf{Mu-Sp} & \textbf{So-Mu-Sp} & \textbf{Avg.} \\
+\midrule
+\multicolumn{9}{c}{\emph{End-to-end models}} \\
+\midrule
+GPT-4o Audio~\citep{hurst2024gpt} & 53.94 & 50.97 & 70.41 & 63.64 & 72.48 & 62.20 & 75.00 & 63.50 \\
+Gemini 2.0 Flash~\citep{google2025gemini20flash} & 61.21 & 50.97 & 72.11 & 81.82 & 72.48 & 65.85 & 70.83 & 65.60 \\
+Gemini 2.5 Pro~\citep{comanici2025gemini} & 67.30 & 56.80 & 82.00 & \textbf{100.00} & 84.90 & 80.50 & 66.70 & 74.70 \\
+Gemini 3 Pro~\citep{google2026gemini3} & 72.73 & 61.65 & 84.35 & 72.73 & 81.19 & 78.05 & 83.33 & 76.40 \\
+Qwen3.5-Omni~\citep{qwen2026qwen35omni} & -- & -- & -- & -- & -- & -- & -- & 80.00 \\
+Qwen3.5-Omni$^\dagger$~\citep{qwen2026qwen35omni} & 75.76 & 61.17 & 85.37 & 90.91 & \textbf{87.61} & 79.27 & \textbf{87.50} & 78.90 \\
+\midrule
+\multicolumn{9}{c}{\emph{Audio agents}} \\
+\midrule
+AudioRouter~\citep{chen2026audiorouter} & 61.40 & \textbf{66.10} & 77.20 & 57.20 & 65.10 & 68.30 & 55.50 & 64.40 \\
+AuTAgent~\citep{tong2026autagent} & 51.52 & 45.15 & 73.81 & -- & -- & -- & -- & 63.00 \\
+AudioToolAgent~\citep{wijngaard2025audiotoolagent} & 73.33 & 63.59 & 82.99 & 63.64 & 83.03 & \textbf{81.71} & 79.17 & 77.00 \\
+AudioGenie-Reasoner~\citep{rong2025audiogenie} & 49.68 & 43.26 & 69.23 & 45.45 & 64.53 & 65.33 & 59.09 & 58.85 \\
+AudioGenie-Reasoner$^\dagger$ (Matched Backbone)~\citep{rong2025audiogenie} & 70.91 & 54.85 & 79.59 & 54.55 & 72.48 & 76.83 & 58.33 & 70.50 \\
+\ours{}$^\dagger$ & \textbf{78.18} & 63.11 & \textbf{87.41} & \textbf{100.00} & \textbf{87.61} & 79.27 & \textbf{87.50} & \textbf{80.40} \\
+\bottomrule
+\end{tabular}
+}
+\caption{MMAR accuracy by modality. So, Mu, and Sp denote sound, music, and speech. Rows marked with $^\dagger$ are evaluated by us on the same 1,000 MMAR examples; other values are taken from the corresponding benchmark or system reports.}
+\label{tab:mmar_main}
+\end{table*}
+
+
+\subsection{Answer Generation and Validation}
+\label{sec:answer_generation}
+
+The final stage keeps answer synthesis separate from evidence acquisition. Once the planner judges that the evidence is sufficient, it emits an answer action rather than writing the final response itself. The system then prepares a neutral evidence summary that reports observations, preserves apparent contradictions, and avoids deciding which source is correct. The audio-capable frontend receives this summary together with the original audio and task context, so the final answer is still grounded in direct listening while being informed by accumulated evidence.
+
+A separate format checker then validates only whether the proposed answer follows the expected structure. It does not judge content correctness; it simply returns structural feedback when the answer format is invalid. This prevents formatting errors from being conflated with evidence failures.
+
+\begin{table}[t]
+\small
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lc}
+\toprule
+\textbf{Model} & \textbf{Avg.} \\
+\midrule
+\multicolumn{2}{c}{\emph{End-to-end models}} \\
+\midrule
+Kimi-Audio~\citep{ding2025kimi} & 0.460 \\
+StepAudio2~\citep{wu2025step} & 0.480 \\
+MiMoAudio~\citep{zhang2025mimo} & 0.600 \\
+Gemini 2.5 Flash$^\dagger$~\citep{comanici2025gemini} & 0.682 \\
+Qwen3.5-Omni$^\dagger$~\citep{qwen2026qwen35omni} & 0.763 \\
+Gemini 2.5 Pro (thinking)$^\dagger$~\citep{comanici2025gemini} & 0.819 \\
+\midrule
+\multicolumn{2}{c}{\emph{Agentic systems}} \\
+\midrule
+AudioGenie-Reasoner$^\dagger$ (Matched Backbone)~\citep{rong2025audiogenie} & 0.789 \\
+\ours{}$^\dagger$ & \textbf{0.828} \\
+\bottomrule
+\end{tabular}
+}
+\caption{Average accuracy on MSU-Bench. Rows marked with $^\dagger$ are evaluated by us; unmarked values are reported by MSU-Bench \citep{wang2025msubench}. AudioGenie-Reasoner and \ours{} use the Gemini configuration for MSU-Bench.}
+\label{tab:msubench_main}
+\end{table}
+
+\section{Results}
+
+\subsection{Experimental Setup}
+\label{sec:experimental_setup}
+
+We evaluate \ours{} on two audio understanding benchmarks: MMAR~\citep{ma2025mmar} and MSU-Bench~\citep{wang2025msubench}. MMAR covers a broad range of audio question-answering categories, while MSU-Bench focuses on information-dense multi-speaker understanding.
+
+For each benchmark, we use the strongest accessible LALM as the audio-capable frontend. On MMAR, \ours{} uses Qwen3.5-Omni as the frontend model and Qwen3.5 as the text planner. On MSU-Bench, \ours{} uses Gemini 2.5 Pro as the frontend model and Gemini 3.0 Flash as the text planner. We also evaluate the corresponding LALM baseline, where the audio-capable model answers the benchmark question without agentic tool use.
+
+We compare against AudioGenie-Reasoner as an agentic baseline~\citep{rong2025audiogenie}. Our main purpose is to test how its agentic design behaves when paired with a strong LALM frontend, so we instantiate AudioGenie-Reasoner with the matched backbone for each benchmark: Qwen3.5-Omni and Qwen3.5 on MMAR, and the Gemini configuration on MSU-Bench. All systems are evaluated with the official multiple-choice answer format of each benchmark, and predictions are scored by matching the selected option against the ground-truth answer.
+
+
+\subsection{Overall Results}
+\label{sec:mmar_results}
+
+Tables~\ref{tab:mmar_main} and~\ref{tab:msubench_main} report the main benchmark results. On MMAR, \ours{} reaches 80.40 average accuracy, improving over our Qwen3.5-Omni evaluation at 78.90 while also outperforming the prior audio-agent baselines in the table. On MSU-Bench, \ours{} reaches 0.828 accuracy, slightly above the direct Gemini 2.5 Pro counterpart at 0.819 and the matched-setting AudioGenie-Reasoner result at 0.789. These gains over strong LALM counterparts are modest, but they are consistent with the intended design: the agent preserves strong frontend perception as the final audio-grounded decision point while selectively acquiring external evidence when the planner identifies a concrete uncertainty or verification need. The MMAR sub-category results further suggest where this design is most useful. \ours{} shows larger gains on Music Theory and Temporal Analysis, where structured music measurements and localized or transformed audio segments can provide evidence that is difficult for a single-pass frontend response to retain precisely. Appendix~\ref{sec:mmar_subcategory_appendix} provides the full MMAR sub-category breakdown for Qwen3.5-Omni, matched-backbone AudioGenie-Reasoner, and \ours{}.
+
+The matched-backbone AudioGenie-Reasoner result illustrates why stronger base models do not automatically make an agentic pipeline stronger. On MMAR, AudioGenie-Reasoner instantiated with Qwen3.5-Omni and Qwen3.5 rises substantially over its originally reported result (70.50 vs. 58.85 average accuracy), showing that the stronger backbone helps. However, it still falls noticeably below Qwen3.5-Omni in our evaluation on MMAR (70.50 vs. 78.90). On MSU-Bench, using the same Gemini setting as \ours{}, AudioGenie-Reasoner reaches 0.789, below both Gemini 2.5 Pro direct inference at 0.819 and \ours{} at 0.828. This suggests that some agentic designs can underuse a strong omni frontend: if the audio model is mainly treated as an intermediate evidence generator, and the final decision is routed through compressed textual traces, the pipeline may lose part of the holistic perception and reasoning ability already available in the frontend model. Thus, agentic audio reasoning should not be viewed as a guaranteed improvement over LALM inference; its benefit depends on whether the agent preserves reliable frontend evidence while adding useful external evidence.
+
+
+\subsection{Behavioral Analysis of Tool Use}
+\label{sec:behavior_analysis}
+
+To examine whether \ours{} behaves the way conditional evidence acquisition predicts, we stratify the 999 successfully completed MMAR runs by the number of tool calls the planner makes per question and compare against the Qwen3.5-Omni baseline on the same items. Across all examples the planner uses on average 1.68 tool calls per question, and 31.2\% of questions exit at zero tool calls. The framework is therefore empirically conditional rather than always-on.
+
+Table~\ref{tab:tool_call_stratified_accuracy} reveals two coupled trends. First, Qwen3.5-Omni accuracy decreases monotonically as tool-call count grows, from 90.4\% at zero calls to 52.0\% in the 6--10 bucket. Since the planner has no access to ground-truth labels or baseline outcomes, and only observes the question, frontend-generated evidence, accumulated state, and available tool interfaces, this alignment suggests that \ours{} captures a practical, question-level estimate of the frontend LALM's capability boundary through its evidence-gap formulation: tool-use depth increases when the initial frontend evidence appears insufficient and remains low when it appears adequate. Thus, conditional evidence acquisition is reflected in the agent's behavior, not only in its design. Second, the \ours{}--Qwen3.5-Omni gap becomes positive in higher tool-use buckets. With zero or one tool call, \ours{} remains close to direct inference ($\Delta \in [-0.8,-0.6]$), suggesting that it largely preserves frontend performance when little additional evidence is needed. Gains emerge from two calls onward, reaching +9.4 points in the 4--5 call bucket, indicating that tool-use benefits are concentrated in cases where the planner commits to deeper evidence acquisition rather than uniformly improving all questions.
+
+Together, these trends help explain the aggregate $+1.5$-point improvement: \ours{} remains close to direct frontend inference when the planner requests little or no tool evidence, while its gains concentrate on questions that trigger deeper evidence acquisition, which is consistent with the intended behavior of conditional evidence acquisition. Appendix~\ref{sec:behavior_appendix} reports planner-round and tool-frequency statistics, including the long-tail $>10$-call bucket.
+
+\begin{table}[t]
+\small
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Tool calls} & \textbf{N} & \textbf{\ours{}} & \textbf{Qwen3.5-Omni} & \textbf{$\Delta$} \\
+\midrule
+0 & 311 & 89.7 & 90.4 & -0.6 \\
+1 & 255 & 85.5 & 86.3 & -0.8 \\
+2 & 164 & 73.8 & 72.6 & +1.2 \\
+3 & 142 & 72.5 & 66.2 & +6.3 \\
+4--5 & 96 & 69.8 & 60.4 & +9.4 \\
+6--10 & 25 & 56.0 & 52.0 & +4.0 \\
+$>$10 & 6 & 16.7 & 50.0 & -33.3 \\
+\bottomrule
+\end{tabular}
+}
+\caption{MMAR accuracy comparison between \ours{} and Qwen3.5-Omni, grouped by the number of tool calls made by \ours{}. Accuracy and $\Delta$ are reported in percentage points.}
+\label{tab:tool_call_stratified_accuracy}
+\end{table}
+
+\subsection{Reasoning Trace Quality Beyond Accuracy}
+\label{sec:beyond_accuracy}
+
+\ours{} is designed to make the reasoning process more interpretable by construction. A LALM answer usually compresses perception, reasoning, and justification into a single response, making it difficult to tell which audio cues were actually heard, which uncertainties were ignored, and whether the explanation is faithful to the decision. In contrast, \ours{} separates the trace into explicit stages. This structure does not guarantee correctness, but it makes the answer path easier to audit because unsupported assumptions, conflicting evidence, and tool-dependent claims remain visible.
+
+For reasoning-trace quality, we apply MMAR-Rubrics, the official instance-level protocol from the Interspeech 2026 Audio Reasoning Challenge~\citep{ma2026audiochallenge}. It scores each correct-answer trace by averaging five instance-specific binary criteria and assigns zero to incorrect answers. Under this protocol, \ours{} obtains an MMAR-Rubrics score of 66.5\%, compared with 59.6\% for Qwen3.5-Omni.\footnote{Scores are not directly comparable to the challenge report because we use Qwen3.5 as the judge instead of GPT-4o.} This result suggests that \ours{} can provide higher-quality audio-QA reasoning chains, which may be valuable for downstream data annotation, error analysis, and human inspection beyond aggregate benchmark accuracy. 
+
+Appendix~\ref{sec:case_study} provides a qualitative example of how such traces support inspection. The case illustrates three recurring behaviors: an LALM may hallucinate a plausible acoustic rationale, the question-oriented frontend prompt can expose uncertainty, and bounded tools can provide the missing evidence. This example complements the MMAR-Rubrics results by showing how auditable traces make the correction process visible rather than only reporting a final answer.
+
+\section{Conclusion}
+
+We presented \ours{}, an auditable and pluggable framework for audio understanding under strong LALM frontends. Motivated by the observation that agentic decomposition is not automatically beneficial when LALMs become stronger, \ours{} treats tool use as conditional evidence acquisition. It preserves frontend audio-grounded judgment while selectively using bounded tools and targeted re-listening when additional evidence is needed.
+
+Experiments on MMAR and MSU-Bench show that \ours{} outperforms prior audio-agent baselines and produces more auditable reasoning traces. Behavioral analysis further shows that \ours{} turns conditional evidence acquisition into observable tool allocation, with gains concentrated where additional evidence is most needed. These results suggest that the value of audio agents lies not in more tool calls, but in acquiring the right evidence while keeping uncertainty, tool outputs, re-listening decisions, and final rationales inspectable. This makes \ours{} a useful basis for reliable audio-QA reasoning, annotation, and error analysis.
+
+\newpage
+\section*{Limitations}
+
+Our evaluation is limited to MMAR and MSU-Bench, which cover broad audio-QA and multi-speaker understanding but do not fully represent real-world uses such as long-form meeting analysis, audio editing, forensic listening, or interactive inspection. \ours{} also depends on the quality of external tools: although tool outputs are treated as bounded evidence rather than ground truth, they may still be noisy, domain-limited, or convention-dependent, especially for music and acoustic analysis. Finally, the framework introduces additional computation through planning, tool execution, and targeted re-listening, so direct LALM inference may remain preferable for simple or latency-sensitive questions.
+
+\section*{Ethical Considerations}
+
+This work uses existing benchmarks, pretrained models, and external audio tools for research evaluation only. We do not collect new human-subject data or recruit human annotators, and we do not redistribute third-party model weights, benchmark data, or tool artifacts. Since audio-agent systems may be used in sensitive speech or speaker-related settings, outputs from \ours{} should be treated as decision support rather than ground truth, especially for personal or legally consequential audio.
+
+% \section*{Acknowledgments}
+
+% This document has been adapted
+% by Steven Bethard, Ryan Cotterell and Rui Yan
+% from the instructions for earlier ACL and NAACL proceedings, including those for
+% ACL 2019 by Douwe Kiela and Ivan Vuli\'{c},
+% NAACL 2019 by Stephanie Lukin and Alla Roskovskaya,
+% ACL 2018 by Shay Cohen, Kevin Gimpel, and Wei Lu,
+% NAACL 2018 by Margaret Mitchell and Stephanie Lukin,
+% Bib\TeX{} suggestions for (NA)ACL 2017/2018 from Jason Eisner,
+% ACL 2017 by Dan Gildea and Min-Yen Kan,
+% NAACL 2017 by Margaret Mitchell,
+% ACL 2012 by Maggie Li and Michael White,
+% ACL 2010 by Jing-Shin Chang and Philipp Koehn,
+% ACL 2008 by Johanna D. Moore, Simone Teufel, James Allan, and Sadaoki Furui,
+% ACL 2005 by Hwee Tou Ng and Kemal Oflazer,
+% ACL 2002 by Eugene Charniak and Dekang Lin,
+% and earlier ACL and EACL formats written by several people, including
+% John Chen, Henry S. Thompson and Donald Walker.
+% Additional elements were taken from the formatting instructions of the \emph{International Joint Conference on Artificial Intelligence} and the \emph{Conference on Computer Vision and Pattern Recognition}.
+
+% Bibliography entries for the entire Anthology, followed by custom entries
+%\bibliography{anthology,custom}
+% Custom bibliography entries only
+\bibliography{custom}
+
+\appendix
+
+\begin{table*}[t]
+\scriptsize
+\centering
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrrrrr}
+\toprule
+\textbf{Layer} & \textbf{Sub-category} & \textbf{N} & \textbf{Qwen} & \textbf{AudioGenie} & \textbf{\ours{}} & \textbf{$\Delta$ vs. Qwen} & \textbf{$\Delta$ vs. AudioGenie} \\
+\midrule
+Cultural & Aesthetic Evaluation & 8 & 75.00 & 50.00 & 62.50 & -12.50 & +12.50 \\
+Cultural & Culture of Speaker & 52 & 78.85 & 76.92 & 82.69 & +3.85 & +5.77 \\
+Cultural & Imagination & 10 & 70.00 & 60.00 & 80.00 & +10.00 & +20.00 \\
+Cultural & Professional Knowledge and Reasoning & 71 & 76.06 & 74.65 & 76.06 & +0.00 & +1.41 \\
+Perception & Correlation Analysis & 50 & 80.00 & 74.00 & 88.00 & +8.00 & +14.00 \\
+Perception & Counting and Statistics & 99 & 64.65 & 56.57 & 63.64 & -1.01 & +7.07 \\
+Perception & Environmental Perception and Reasoning & 149 & 87.25 & 70.47 & 85.91 & -1.34 & +15.44 \\
+Perception & Music Theory & 63 & 57.14 & 55.56 & 73.02 & +15.87 & +17.46 \\
+Perception & Spatial Analysis & 15 & 73.33 & 73.33 & 60.00 & -13.33 & -13.33 \\
+Perception & Temporal Analysis & 28 & 64.29 & 42.86 & 78.57 & +14.29 & +35.71 \\
+Semantic & Content Analysis & 304 & 85.20 & 80.26 & 86.84 & +1.64 & +6.58 \\
+Semantic & Emotion and Intention & 60 & 83.33 & 65.00 & 76.67 & -6.67 & +11.67 \\
+Semantic & Speaker Analysis & 48 & 87.50 & 77.08 & 87.50 & +0.00 & +10.42 \\
+Signal & Acoustic Quality Analysis & 18 & 77.78 & 55.56 & 66.67 & -11.11 & +11.11 \\
+Signal & Anomaly Detection & 17 & 70.59 & 70.59 & 88.24 & +17.65 & +17.65 \\
+Signal & Audio Difference Analysis & 8 & 62.50 & 50.00 & 37.50 & -25.00 & -12.50 \\
+\bottomrule
+\end{tabular}
+}
+\caption{Full MMAR sub-category accuracy comparison. Values are accuracies in percentage points. AudioGenie denotes AudioGenie-Reasoner instantiated with Qwen3.5-Omni and Qwen3.5 for matched-backbone comparison.}
+\label{tab:mmar_subcategory_full}
+\end{table*}
+
+
+
+
+
+
+\section{MMAR Sub-Category Results}
+\label{sec:mmar_subcategory_appendix}
+
+Table~\ref{tab:mmar_subcategory_full} reports the MMAR sub-category comparison among Qwen3.5-Omni, matched-backbone AudioGenie-Reasoner, and \ours{} on the same 1,000-example evaluation split.
+
+The sub-category results suggest that \ours{} helps most when a question can benefit from bounded, task-specific evidence rather than generic decomposition. The largest gains over Qwen3.5-Omni appear in Music Theory (+15.87), Temporal Analysis (+14.29), Anomaly Detection (+17.65), and Correlation Analysis (+8.00), which are categories where structured measurements, temporal localization, or transformed audio segments can provide concrete support for the frontend. In contrast, \ours{} does not consistently improve categories that rely mainly on holistic semantic judgment or perceptual interpretation: it is slightly worse on Spatial Analysis, Acoustic Quality Analysis, and Audio Difference Analysis. This mixed pattern shows that there is no universally optimal division of labor between external tools and frontend LALMs. The capability boundary is question dependent: tools may provide more reliable evidence for some subcategories, while direct frontend perception may remain stronger for others. As both LALMs and specialized tools improve, this boundary may also shift across model generations and task settings. Estimating when tool evidence is likely to help, and when it may distract from stronger frontend judgment, is therefore an important direction for audio agent research.
+
+\section{System Behavior and Tool-Usage Statistics}
+\label{sec:behavior_appendix}
+
+This appendix expands on Section~\ref{sec:behavior_analysis} with full distributions over planner rounds, tool calls, tool-usage frequency, and targeted re-listening. Unless otherwise stated, all behavioral statistics are computed on the 999 successfully completed MMAR runs; one of the 1,000 evaluation examples failed due to an API content-safety rejection and is excluded from tool-use statistics.
+\subsection{Planner-Round Distribution}
+
+A planner round is one decision step in which the planner emits either a tool call, a re-listen request, an answer, or a give-up action. Across the 999 runs, the planner uses on average 2.68 rounds per question. 99.9\% of runs exit with an \textsc{answer} action; only one run exits with \textsc{fail} due to an API content-safety rejection. Table~\ref{tab:planner_rounds_hist} reports the full distribution: 31.1\% of questions exit in a single round (i.e., the planner emits \textsc{answer} immediately after the initial caption), and 93.3\% exit within five rounds.
+
+\begin{table}[t]
+\small
+\centering
+\begin{tabular}{lrr}
+\toprule
+\textbf{Rounds} & \textbf{Count} & \textbf{Share} \\
+\midrule
+1 & 311 & 31.1\% \\
+2 & 255 & 25.5\% \\
+3 & 164 & 16.4\% \\
+4--5 & 203 & 20.3\% \\
+6--10 & 59 & 5.9\% \\
+$>$10 & 7 & 0.7\% \\
+\bottomrule
+\end{tabular}
+\caption{Distribution of planner rounds per MMAR question.}
+\label{tab:planner_rounds_hist}
+\end{table}
+
+\subsection{Tool-Usage Frequency}
+
+Across 999 MMAR runs, \ours{} invokes 1{,}675 tools in total. Table~\ref{tab:top_tools} lists the ten most frequently used tools, which together account for 74.5\% of all invocations. The distribution is heavy-tailed: ASR with timestamps, audio-plot inspection, and time-range trimming dominate, consistent with the prevalence of speech, sound, and temporal-localization questions in MMAR. Of the remaining 25 tools each accounts for less than 3\% of calls, but each is used on at least one question, indicating that the long tail of the inventory provides bounded, occasionally decisive coverage rather than redundant capacity. We also observed 6 invocations of a non-existent tool name (\texttt{content}) across 4 questions; these are planner hallucinations rejected by the executor and represent a minor failure mode in tool selection.
+
+\begin{table}[t]
+\small
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Tool} & \textbf{Calls} & \textbf{\% of calls} & \textbf{Q-share} \\
+\midrule
+\texttt{transcribe\_qwenasr\_with\_timestamps} & 227 & 14.9 & 18.9 \\
+\texttt{inspect\_audio\_plots} & 206 & 13.6 & 11.1 \\
+\texttt{trim\_audio} & 173 & 11.4 & 6.9 \\
+\texttt{transcribe\_fireredasr\_with\_timestamps} & 113 & 7.4 & 11.3 \\
+\texttt{analyze\_pitch} & 107 & 7.0 & 5.4 \\
+\texttt{analyze\_onsets} & 85 & 5.6 & 7.5 \\
+\texttt{transcribe\_whisperx\_with\_diarization} & 64 & 4.2 & 6.2 \\
+\texttt{extract\_rms\_energy} & 58 & 3.8 & 3.7 \\
+\texttt{analyze\_spectral\_features} & 55 & 3.6 & 3.8 \\
+\texttt{transcribe\_qwenasr} & 46 & 3.0 & 3.7 \\
+\bottomrule
+\end{tabular}
+}
+\caption{Top-10 most invoked tools on MMAR. Q-share is the percentage of questions invoking the tool at least once.}
+\label{tab:top_tools}
+\end{table}
+
+\subsection{Targeted Re-Listening}
+
+Targeted re-listening, in which the planner sends a selected audio identifier and a focused prompt back to the frontend, is used sparingly: only 50 out of 999 MMAR questions (5.0\%) trigger at least one re-listen, for 64 re-listens in total. This pattern is consistent with the intended role of re-listening: it is reserved for cases where tool-side transformation or selection has changed what the frontend can perceive, rather than serving as a generic fallback.
+
+\begin{figure*}[t]
+  \centering
+  \resizebox{\textwidth}{!}{\input{figures/case_study_hot_water.tex}}
+  \caption{Qualitative correction trace for a hot-versus-cold water example. The left panel shows the Qwen3.5-Omni response, where highlighted text marks the unsupported acoustic cue that leads to the wrong answer. The right panel shows the agent path: uncertainty is stated in the initial caption, tools isolate and measure both pouring segments, and targeted frontend follow-up uses this evidence to produce the correct answer.}
+  \label{fig:case_study_hot_water}
+\end{figure*}
+
+
+\subsection{Long-Tail \texorpdfstring{$>$}{>}10-Call Bucket}
+
+In Section~\ref{sec:behavior_analysis}, the $>10$ tool-call bucket on MMAR contains only six questions and is too small to support a reliable interpretation. On these six questions, the direct Qwen3.5-Omni baseline achieves 50.0\% accuracy while \ours{} drops to 16.7\%. Possible explanations include long tool chains accumulating noisy intermediate evidence, planner instability on the hardest examples, and selection bias --- only the most uncertain questions reach this depth. Distinguishing these explanations would require more examples than this benchmark provides at the tail; we therefore treat the bucket as suggestive of a degradation regime worth investigating, but do not draw conclusions from it.
+
+
+
+\section{Qualitative Case Study}
+\label{sec:case_study}
+
+We include one qualitative case to illustrate three behaviors that motivate the agent design. First, \textbf{an LALM may hallucinate a plausible acoustic rationale}: in an MMAR example asking which of two water-pouring segments is hot, Qwen3.5-Omni answers incorrectly by attributing a fizzing or sizzling cue to the first segment. Second, \textbf{the question-oriented frontend prompt helps expose uncertainty}: under our prompt, the same frontend localizes the two pours at approximately 3--8s and 19--24s, but marks the raw perceptual evidence as weak, notes that no clear steam hiss or ice clink is audible, and assigns only 0.3 confidence to its forced hypothesis. Third, \textbf{tools provide the missing evidence}: \ours{} isolates the two candidate segments, measures their spectral properties, and asks the frontend to re-listen with this comparative evidence. The second segment shows stronger high-frequency noise-like energy, with higher spectral centroid (5195 Hz vs. 4013 Hz), rolloff (10844 Hz vs. 8921 Hz), and flatness (0.011 vs. 0.004), leading targeted re-listening to reverse the initial forced option and select the correct answer. This example does not establish broad tool reliability by itself, but illustrates how \ours{} turns exposed uncertainty into focused evidence acquisition, as shown in Figure~\ref{fig:case_study_hot_water}.
+
+
+
+\section{Reproducibility Details}
+\label{sec:reproducibility_appendix}
+
+The MMAR configuration uses \texttt{qwen3.5-omni-plus} for the audio-capable frontend and \texttt{qwen3.5-plus} for the text planner. The MSU-Bench configuration uses \texttt{Gemini 2.5} with thinking enabled as the audio-capable frontend and \texttt{Gemini 3.0 Flash} with thinking enabled as the text planner. We use temperature 0.05 for model calls and allow at most 15 planner decision steps per example. We use all pretrained models, benchmarks, and external tools under their respective licenses or terms of use, only for research evaluation and analysis, and do not redistribute third-party model weights, benchmark data, or tool artifacts. The prompt templates, tool inventory, and evaluation scripts are included with the submitted supplementary materials and will be released with the code.
+
+\section{Tool Inventory}
+\label{sec:tool_inventory_appendix}
+
+Table~\ref{tab:tool_inventory_full} summarizes the tool inventory used in our experiments. We use the term ``tool'' broadly: some entries wrap specialized pretrained models, such as ASR, diarization, speaker verification, or chord recognition systems, while others are deterministic or library-based audio operations implemented with standard signal-processing utilities such as FFmpeg~\citep{tomar2006converting} and librosa~\citep{mcfee2015librosa}. The planner sees both types through the same bounded interface, but their expected outputs and reliability assumptions are specified separately in the tool-inventory configuration. Detailed input schemas and boundary instructions are maintained in the planner configuration.
+
+\begin{table*}[t]
+\scriptsize
+\centering
+\renewcommand{\arraystretch}{1.05}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.28\textwidth}>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Tool} & \textbf{Description} \\
+\midrule
+\multicolumn{2}{c}{\emph{Metadata validation}} \\
+\cmidrule(lr){1-2}
+Audio stream statistics & Reports audio stream metadata and summary statistics. \\
+Loading metadata & Reports duration, sample rate, and basic loading metadata. \\
+\midrule
+\multicolumn{2}{c}{\emph{Audio derivation}} \\
+\cmidrule(lr){1-2}
+FFT denoising & Creates a denoised audio file using FFT-domain filtering. \\
+Wavelet denoising & Creates a denoised audio file using wavelet filtering. \\
+Channel conversion & Converts audio to a target channel layout. \\
+High-pass filtering & Attenuates low frequencies below a cutoff. \\
+Low-pass filtering & Attenuates high frequencies above a cutoff. \\
+Resampling & Converts audio to a target sample rate. \\
+Harmonic--percussive separation & Estimates harmonic and percussive source components. \\
+Time-range trimming & Cuts a selected time span into a derived clip. \\
+\midrule
+\multicolumn{2}{c}{\emph{Temporal segmentation}} \\
+\cmidrule(lr){1-2}
+Speech/music activity detection & Detects coarse speech, singing, and music regions. \\
+FireRed speech VAD~\citep{xu2026fireredasr2s} & Detects likely speech activity regions. \\
+Audio segmentation & Splits audio using fixed-duration or silence-based rules. \\
+Silence detection & Detects silence intervals with threshold and duration settings. \\
+Silero VAD & Detects likely speech regions with Silero VAD. \\
+\midrule
+\multicolumn{2}{c}{\emph{Speech and speaker processing}} \\
+\cmidrule(lr){1-2}
+DiariZen diarization~\citep{han2025efficient_diarization} & Estimates anonymous speaker-labeled time segments. \\
+SortFormer diarization~\citep{park2025sortformer} & Estimates speaker-labeled segments with arrival-order tracking. \\
+Speaker verification~\citep{wang2023wespeaker} & Compares two clips for same-speaker evidence. \\
+FireRedASR~\citep{xu2025fireredasr,xu2026fireredasr2s} & Transcribes speech without word timestamps. \\
+FireRedASR with timestamps~\citep{xu2026fireredasr2s} & Transcribes speech with rough timing information. \\
+Qwen3-ASR~\citep{shi2026qwen3asr} & Transcribes speech with the Qwen ASR model. \\
+Qwen3-ASR with timestamps~\citep{shi2026qwen3asr} & Transcribes speech with timestamp information. \\
+WhisperX ASR~\citep{bain2023whisperx} & Transcribes speech with WhisperX. \\
+WhisperX ASR with diarization~\citep{bain2023whisperx,bredin2023pyannote,plaquet2023powerset} & Produces transcription with diarization output. \\
+\midrule
+\multicolumn{2}{c}{\emph{Acoustic/music feature analysis}} \\
+\cmidrule(lr){1-2}
+Onset analysis & Detects onset times and onset-strength cues. \\
+Pitch contour analysis & Estimates rough pitch contours and pitch statistics. \\
+Tempo-CNN estimation~\citep{schreiber2018tempocnn} & Estimates two likely tempi and relative salience. \\
+Spectral descriptors & Computes centroid, bandwidth, rolloff, contrast, and flatness. \\
+Amplitude statistics & Computes detailed amplitude statistics. \\
+Musical key estimation & Estimates a coarse musical key center. \\
+Chroma extraction & Extracts pitch-class energy features over time. \\
+MFCC extraction & Extracts spectral-envelope features. \\
+RMS energy extraction & Extracts an energy-envelope proxy. \\
+Large-vocabulary chord recognition~\citep{jiang2019largevocabularychord} & Recognizes chord timelines with extended chord vocabulary. \\
+FFmpeg spectral statistics & Computes spectral statistics over audio. \\
+Volume statistics & Computes mean and maximum volume statistics. \\
+\midrule
+\multicolumn{2}{c}{\emph{Signal visualization inspection}} \\
+\cmidrule(lr){1-2}
+Audio-plot inspection~\citep{bai2025qwen3} & Inspects waveforms, spectrograms, or other audio plots for bounded signal-level cues. \\
+Processing-quality verification & Checks whether trimmed, filtered, separated, or denoised audio remains usable for downstream analysis. \\
+\bottomrule
+\end{tabularx}
+\caption{Full planner-facing tool inventory used by \ours{}. Each category header groups tools with a shared operational role; detailed tool schemas and boundary instructions are specified in the planner inventory configuration.}
+\label{tab:tool_inventory_full}
+\end{table*}
+
+\section{Generative AI Use Disclosure}
+
+The authors used AI writing assistants to support language polishing, phrasing refinement, and checklist preparation. All scientific ideas, system design, experiments, analyses, and final manuscript decisions were made and verified by the authors.
+
+\end{document}

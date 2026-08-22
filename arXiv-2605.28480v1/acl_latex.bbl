@@ -1,0 +1,252 @@
+\begin{thebibliography}{50}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Bai et~al.(2025)Bai, Cai, Chen, Chen, Chen, Cheng, Deng, Ding, Gao, Ge et~al.}]{bai2025qwen3}
+Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen, Xionghui Chen, Zesen Cheng, Lianghao Deng, Wei Ding, Chang Gao, Chunjiang Ge, and 1 others. 2025.
+\newblock Qwen3-vl technical report.
+\newblock \emph{arXiv preprint arXiv:2511.21631}.
+
+\bibitem[{Bain et~al.(2023)Bain, Huh, Han, and Zisserman}]{bain2023whisperx}
+Max Bain, Jaesung Huh, Tengda Han, and Andrew Zisserman. 2023.
+\newblock \href {https://doi.org/10.48550/arXiv.2303.00747} {Whisperx: Time-accurate speech transcription of long-form audio}.
+\newblock In \emph{Proceedings of Interspeech 2023}.
+
+\bibitem[{Bredin(2023)}]{bredin2023pyannote}
+Herv{\'e} Bredin. 2023.
+\newblock pyannote.audio 2.1 speaker diarization pipeline: Principle, benchmark, and recipe.
+\newblock In \emph{Proceedings of Interspeech 2023}.
+
+\bibitem[{Chen et~al.(2026)Chen, Chen, Cai, Li, Ye, and Wang}]{chen2026audiorouter}
+Liyang Chen, Hongkai Chen, Yujun Cai, Sifan Li, Qingwen Ye, and Yiwei Wang. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2602.10439} {Audiorouter: Data efficient audio understanding via rl based dual reasoning}.
+\newblock \emph{arXiv preprint arXiv:2602.10439}.
+
+\bibitem[{Chiu et~al.(2022)Chiu, M{\"u}ller, Davies, Su, and Yang}]{chiu2022analysis}
+Ching-Yu Chiu, Meinard M{\"u}ller, Matthew~EP Davies, Alvin Wen-Yu Su, and Yi-Hsuan Yang. 2022.
+\newblock An analysis method for metric-level switching in beat tracking.
+\newblock \emph{IEEE Signal Processing Letters}, 29:2153--2157.
+
+\bibitem[{Chu et~al.(2024)Chu, Xu, Yang, Wei, Wei, Guo, Leng, Lv, He, Lin, Zhou, and Zhou}]{chu2024qwen2audio}
+Yunfei Chu, Jin Xu, Qian Yang, Haojie Wei, Xipin Wei, Zhifang Guo, Yichong Leng, Yuanjun Lv, Jinzheng He, Junyang Lin, Chang Zhou, and Jingren Zhou. 2024.
+\newblock \href {https://doi.org/10.48550/arXiv.2407.10759} {Qwen2-audio technical report}.
+\newblock \emph{arXiv preprint arXiv:2407.10759}.
+
+\bibitem[{Comanici et~al.(2025)Comanici, Bieber, Schaekermann, Pasupat, Sachdeva, Dhillon, Blistein, Ram, Zhang, Rosen et~al.}]{comanici2025gemini}
+Gheorghe Comanici, Eric Bieber, Mike Schaekermann, Ice Pasupat, Noveen Sachdeva, Inderjit Dhillon, Marcel Blistein, Ori Ram, Dan Zhang, Evan Rosen, and 1 others. 2025.
+\newblock Gemini 2.5: Pushing the frontier with advanced reasoning, multimodality, long context, and next generation agentic capabilities.
+\newblock \emph{arXiv preprint arXiv:2507.06261}.
+
+\bibitem[{Cui et~al.(2024)Cui, Yu, Jiao, Meng, Zhang, Wang, Guo, and King}]{cui2024recent_speechlm_survey}
+Wenqian Cui, Dianzhi Yu, Xiaoqi Jiao, Ziqiao Meng, Guangyan Zhang, Qichao Wang, Yiwen Guo, and Irwin King. 2024.
+\newblock \href {https://doi.org/10.48550/arXiv.2410.03751} {Recent advances in speech language models: A survey}.
+\newblock \emph{arXiv preprint arXiv:2410.03751}.
+
+\bibitem[{Ding et~al.(2025)Ding, Ju, Leng, Liu, Liu, Shang, Shen, Song, Tan, Tang et~al.}]{ding2025kimi}
+Ding Ding, Zeqian Ju, Yichong Leng, Songxiang Liu, Tong Liu, Zeyu Shang, Kai Shen, Wei Song, Xu~Tan, Heyi Tang, and 1 others. 2025.
+\newblock Kimi-audio technical report.
+\newblock \emph{arXiv preprint arXiv:2504.18425}.
+
+\bibitem[{Goel et~al.(2025)Goel, Ghosh, Kim, Kumar, Kong, Lee, Yang, Duraiswami, Manocha, Valle, and Catanzaro}]{goel2025audioflamingo3}
+Arushi Goel, Sreyan Ghosh, Jaehyeon Kim, Sonal Kumar, Zhifeng Kong, Sang-gil Lee, Chao-Han~Huck Yang, Ramani Duraiswami, Dinesh Manocha, Rafael Valle, and Bryan Catanzaro. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2507.08128} {Audio flamingo 3: Advancing audio intelligence with fully open large audio language models}.
+\newblock \emph{arXiv preprint arXiv:2507.08128}.
+
+\bibitem[{{Google}(2025)}]{google2025gemini20flash}
+{Google}. 2025.
+\newblock \href {https://modelcards.withgoogle.com/assets/documents/gemini-2-flash.pdf} {Gemini 2.0 flash model card}.
+
+\bibitem[{{Google DeepMind}(2026)}]{google2026gemini3}
+{Google DeepMind}. 2026.
+\newblock \href {https://deepmind.google/gemini} {Gemini 3}.
+
+\bibitem[{Han et~al.(2025)Han, P{\'a}lka, Delcroix, Landini, Rohdin, Cernock{\'y}, and Burget}]{han2025efficient_diarization}
+Jiangyu Han, Petr P{\'a}lka, Marc Delcroix, Federico Landini, Johan Rohdin, Jan Cernock{\'y}, and Luk{\'a}{\v{s}} Burget. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2506.18623} {Efficient and generalizable speaker diarization via structured pruning of self-supervised models}.
+\newblock \emph{arXiv preprint arXiv:2506.18623}.
+
+\bibitem[{Huang et~al.(2025)Huang, Wu, Wang, Yan, Hu, Feng, Tian, Shen, Li, Chen et~al.}]{huang2025step}
+Ailin Huang, Boyong Wu, Bruce Wang, Chao Yan, Chen Hu, Chengli Feng, Fei Tian, Feiyu Shen, Jingbei Li, Mingrui Chen, and 1 others. 2025.
+\newblock Step-audio: Unified understanding and generation in intelligent speech interaction.
+\newblock \emph{arXiv preprint arXiv:2502.11946}.
+
+\bibitem[{Hurst et~al.(2024)Hurst, Lerer, Goucher, Perelman, Ramesh, Clark, Ostrow, Welihinda, Hayes, Radford et~al.}]{hurst2024gpt}
+Aaron Hurst, Adam Lerer, Adam~P Goucher, Adam Perelman, Aditya Ramesh, Aidan Clark, AJ~Ostrow, Akila Welihinda, Alan Hayes, Alec Radford, and 1 others. 2024.
+\newblock Gpt-4o system card.
+\newblock \emph{arXiv preprint arXiv:2410.21276}.
+
+\bibitem[{Jiang et~al.(2019)Jiang, Chen, Li, and Xia}]{jiang2019largevocabularychord}
+Junyan Jiang, Ke~Chen, Wei Li, and Gus Xia. 2019.
+\newblock \href {http://archives.ismir.net/ismir2019/paper/000078.pdf} {Large-vocabulary chord transcription via chord structure decomposition}.
+\newblock In \emph{Proceedings of the 20th International Society for Music Information Retrieval Conference}, pages 644--651, Delft, The Netherlands.
+
+\bibitem[{Kong et~al.(2024)Kong, Goel, Badlani, Ping, Valle, and Catanzaro}]{kong2024audioflamingo}
+Zhifeng Kong, Arushi Goel, Rohan Badlani, Wei Ping, Rafael Valle, and Bryan Catanzaro. 2024.
+\newblock \href {https://doi.org/10.48550/arXiv.2402.01831} {Audio flamingo: A novel audio language model with few-shot learning and dialogue abilities}.
+\newblock \emph{arXiv preprint arXiv:2402.01831}.
+
+\bibitem[{Koops et~al.(2017)Koops, de~Haas, Bransen, and Volk}]{koops2017chord}
+Hendrik~Vincent Koops, W~Bas de~Haas, Jeroen Bransen, and Anja Volk. 2017.
+\newblock Chord label personalization through deep learning of integrated harmonic interval-based representations.
+\newblock \emph{arXiv preprint arXiv:1706.09552}.
+
+\bibitem[{Kuan et~al.(2024)Kuan, Yang, Huang, Lu, and Lee}]{kuan2024speechcopilot}
+Chun-Yi Kuan, Chih-Kai Yang, Wei-Ping Huang, Ke-Han Lu, and Hung-yi Lee. 2024.
+\newblock \href {https://doi.org/10.48550/arXiv.2407.09886} {Speech-copilot: Leveraging large language models for speech processing via task decomposition, modularization, and program generation}.
+\newblock \emph{arXiv preprint arXiv:2407.09886}.
+
+\bibitem[{Kumar et~al.(2025)Kumar, Sedl{\'a}{\v c}ek, Lokegaonkar, L{\'o}pez, Yu, Anand, Ryu, Chen, Pli{\v c}ka, Hlav{\'a}{\v c}ek et~al.}]{kumar2025mmaupro}
+Sonal Kumar, {\v S}imon Sedl{\'a}{\v c}ek, Vaibhavi Lokegaonkar, Fernando L{\'o}pez, Wenyi Yu, Nishit Anand, Hyeonggon Ryu, Lichang Chen, Maxim Pli{\v c}ka, Miroslav Hlav{\'a}{\v c}ek, and 1 others. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2508.13992} {{MMAU-Pro}: A challenging and comprehensive benchmark for holistic evaluation of audio general intelligence}.
+\newblock \emph{arXiv preprint arXiv:2508.13992}.
+
+\bibitem[{Lee et~al.(2025)Lee, Lin, and Lee}]{lee2025audiomaestro}
+Kuan-Yi Lee, Tsung-En Lin, and Hung-Yi Lee. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2510.11454} {Audio-maestro: Enhancing large audio-language models with tool-augmented reasoning}.
+\newblock \emph{arXiv preprint arXiv:2510.11454}.
+
+\bibitem[{Ma et~al.(2025)Ma, Ma, Zhu, Yang, Chao, Xu, Chen, Chen, Chen, Cong et~al.}]{ma2025mmar}
+Ziyang Ma, Yinghao Ma, Yanqiao Zhu, Chen Yang, Yi-Wen Chao, Ruiyang Xu, Wenxi Chen, Yuanzhe Chen, Zhuo Chen, Jian Cong, and 1 others. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2505.13032} {{MMAR}: A challenging benchmark for deep reasoning in speech, audio, music, and their mix}.
+\newblock \emph{arXiv preprint arXiv:2505.13032}.
+
+\bibitem[{Ma et~al.(2026)Ma, Xu, Ma, Yang, Li, Kim, Xu, Li, Busso, Yu, Chng, and Chen}]{ma2026audiochallenge}
+Ziyang Ma, Ruiyang Xu, Yinghao Ma, Chao-Han~Huck Yang, Bohan Li, Jaeyeon Kim, Jin Xu, Jinyu Li, Carlos Busso, Kai Yu, Eng~Siong Chng, and Xie Chen. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2602.14224} {The interspeech 2026 audio reasoning challenge: Evaluating reasoning process quality for audio reasoning models and agents}.
+\newblock \emph{arXiv preprint arXiv:2602.14224}.
+
+\bibitem[{McFee et~al.(2015)McFee, Raffel, Liang, Ellis, McVicar, Battenberg, Nieto et~al.}]{mcfee2015librosa}
+Brian McFee, Colin Raffel, Dawen Liang, Daniel~PW Ellis, Matt McVicar, Eric Battenberg, Oriol Nieto, and 1 others. 2015.
+\newblock librosa: Audio and music signal analysis in python.
+\newblock \emph{SciPy}, 2015(18-24):7.
+
+\bibitem[{Olev and Alum{\"a}e(2026)}]{olev2026multisource}
+Aivo Olev and Tanel Alum{\"a}e. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2603.17822} {Multi-source evidence fusion for audio question answering}.
+\newblock \emph{arXiv preprint arXiv:2603.17822}.
+
+\bibitem[{Park et~al.(2025)Park, Medennikov, Dhawan, Wang, Huang, Koluguri, Puvvada, Balam, and Ginsburg}]{park2025sortformer}
+Taejin Park, Ivan Medennikov, Kunal Dhawan, Weiqing Wang, He~Huang, Nithin~Rao Koluguri, Krishna~C. Puvvada, Jagadeesh Balam, and Boris Ginsburg. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2409.06656} {Sortformer: A novel approach for permutation-resolved speaker supervision in speech-to-text systems}.
+\newblock In \emph{Proceedings of the 42nd International Conference on Machine Learning}.
+
+\bibitem[{Peng et~al.(2024)Peng, Wang, Li, Guo, Wang, Fang, Xi, Li, Li, Zhang, Wang, and Yu}]{peng2024survey_speech_llms_understanding}
+Jing Peng, Yucheng Wang, Bohan Li, Yiwei Guo, Hankun Wang, Yangui Fang, Yu~Xi, Haoyu Li, Xu~Li, Ke~Zhang, Shuai Wang, and Kai Yu. 2024.
+\newblock \href {https://doi.org/10.48550/arXiv.2410.18908} {A survey on speech large language models for understanding}.
+\newblock \emph{arXiv preprint arXiv:2410.18908}.
+
+\bibitem[{Plaquet and Bredin(2023)}]{plaquet2023powerset}
+Alexis Plaquet and Herv{\'e} Bredin. 2023.
+\newblock Powerset multi-class cross entropy loss for neural speaker diarization.
+\newblock In \emph{Proceedings of Interspeech 2023}.
+
+\bibitem[{{Qwen Team}(2026)}]{qwen2026qwen35omni}
+{Qwen Team}. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2604.15804} {Qwen3.5-omni technical report}.
+\newblock \emph{arXiv preprint arXiv:2604.15804}.
+
+\bibitem[{Rong et~al.(2025)Rong, Li, Yu, and Liu}]{rong2025audiogenie}
+Yan Rong, Chenxing Li, Dong Yu, and Li~Liu. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2509.16971} {Audiogenie-reasoner: A training-free multi-agent framework for coarse-to-fine audio deep reasoning}.
+\newblock \emph{arXiv preprint arXiv:2509.16971}.
+
+\bibitem[{Sakshi et~al.(2024)Sakshi, Tyagi, Kumar, Seth, Selvakumar, Nieto, Duraiswami, Ghosh, and Manocha}]{sakshi2024mmau}
+S.~Sakshi, Utkarsh Tyagi, Sonal Kumar, Ashish Seth, Ramaneswaran Selvakumar, Oriol Nieto, Ramani Duraiswami, Sreyan Ghosh, and Dinesh Manocha. 2024.
+\newblock \href {https://doi.org/10.48550/arXiv.2410.19168} {{MMAU}: A massive multi-task audio understanding and reasoning benchmark}.
+\newblock \emph{arXiv preprint arXiv:2410.19168}.
+
+\bibitem[{Schreiber and M{\"u}ller(2018)}]{schreiber2018tempocnn}
+Hendrik Schreiber and Meinard M{\"u}ller. 2018.
+\newblock \href {https://doi.org/10.5281/zenodo.1492353} {A single-step approach to musical tempo estimation using a convolutional neural network}.
+\newblock In \emph{Proceedings of the 19th International Society for Music Information Retrieval Conference}, pages 98--105, Paris, France.
+
+\bibitem[{Shao et~al.(2026)Shao, Su, Tian, Mu, Lin, Fan, Luo, Luan, and Xie}]{shao2026listeningwithtime}
+Mingchen Shao, Hang Su, Wenjie Tian, Bingshen Mu, Zhennan Lin, Lichun Fan, Zhenbo Luo, Jian Luan, and Lei Xie. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2604.22245} {Listening with time: Precise temporal awareness for long-form audio understanding}.
+\newblock \emph{arXiv preprint arXiv:2604.22245}.
+
+\bibitem[{Shi et~al.(2026)Shi, Wang, Guo, Wang, Zhang, Zhang, Guo, Hao, Xi, Yang, Xu, Zhou, and Lin}]{shi2026qwen3asr}
+Xian Shi, Xiong Wang, Zhifang Guo, Yongqi Wang, Pei Zhang, Xinyu Zhang, Zishan Guo, Hongkun Hao, Yu~Xi, Baosong Yang, Jin Xu, Jingren Zhou, and Junyang Lin. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2601.21337} {Qwen3-asr technical report}.
+\newblock \emph{arXiv preprint arXiv:2601.21337}.
+
+\bibitem[{Tang et~al.(2023)Tang, Yu, Sun, Chen, Tan, Li, Lu, MA, and Zhang}]{tang2023salmonn}
+Changli Tang, Wenyi Yu, Guangzhi Sun, Xianzhao Chen, Tian Tan, Wei Li, Lu~Lu, Zejun MA, and Chao Zhang. 2023.
+\newblock \href {https://doi.org/10.48550/arXiv.2310.13289} {{SALMONN}: Towards generic hearing abilities for large language models}.
+\newblock \emph{arXiv preprint arXiv:2310.13289}.
+
+\bibitem[{Tian et~al.(2025)Tian, Zhang, Zhang, Zhang, Li, Liu, Deng, Wu, Chen, Zhao, Yao, Liu, Chng, Yang, Zhang, Jiang, and Yu}]{stepfun2025stepaudior1}
+Fei Tian, Xiangyu~Tony Zhang, Yuxin Zhang, Haoyang Zhang, Yuxin Li, Daijiao Liu, Yayue Deng, Donghang Wu, Jun Chen, Liang Zhao, Chengyuan Yao, Hexin Liu, Eng~Siong Chng, Xuerui Yang, Xiangyu Zhang, Daxin Jiang, and Gang Yu. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2511.15848} {Step-audio-r1 technical report}.
+\newblock \emph{arXiv preprint arXiv:2511.15848}.
+
+\bibitem[{Tomar(2006)}]{tomar2006converting}
+Suramya Tomar. 2006.
+\newblock Converting video formats with ffmpeg.
+\newblock \emph{Linux journal}, 2006(146):10.
+
+\bibitem[{Tong et~al.(2026)Tong, Li, Wang, Bi, Cai, Liu, He, and Hao}]{tong2026autagent}
+Siqian Tong, Xuan Li, Yiwei Wang, Baolong Bi, Yujun Cai, Shenghua Liu, Yuchen He, and Chengpeng Hao. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2602.13685} {Autagent: A reinforcement learning framework for tool-augmented audio reasoning}.
+\newblock \emph{arXiv preprint arXiv:2602.13685}.
+
+\bibitem[{Wan et~al.(2026)Wan, Yang, Tian, Ye, Pasad, Fu, Goel, Hachiuma, Diao, Dhawan, Ghosh, Hirota, Chen, Valle, Hosseini~Asl, Chu, Watanabe, Wang, and Ginsburg}]{wan2026speechhands}
+Zhen Wan, Chao-Han~Huck Yang, Jinchuan Tian, Hanrong Ye, Ankita Pasad, Szu-wei Fu, Arushi Goel, Ryo Hachiuma, Shizhe Diao, Kunal Dhawan, Sreyan Ghosh, Yusuke Hirota, Zhehuai Chen, Rafael Valle, Ehsan Hosseini~Asl, Chenhui Chu, Shinji Watanabe, Yu-Chiang~Frank Wang, and Boris Ginsburg. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2601.09413} {Speech-hands: A self-reflection voice agentic approach to speech recognition and audio reasoning with omni perception}.
+\newblock \emph{arXiv preprint arXiv:2601.09413}.
+
+\bibitem[{Wang et~al.(2023)Wang, Liang, Wang, Chen, Zhang, Xiang, Deng, and Qian}]{wang2023wespeaker}
+Hongji Wang, Chengdong Liang, Shuai Wang, Zhengyang Chen, Binbin Zhang, Xu~Xiang, Yanlei Deng, and Yanmin Qian. 2023.
+\newblock \href {https://doi.org/10.48550/arXiv.2210.17016} {Wespeaker: A research and production oriented speaker embedding learning toolkit}.
+\newblock In \emph{Proceedings of the IEEE International Conference on Acoustics, Speech and Signal Processing}.
+
+\bibitem[{Wang et~al.(2025)Wang, Sun, Lin, Wang, Pan, and Xie}]{wang2025msubench}
+Shuai Wang, Zhaokai Sun, Zhennan Lin, Chengyou Wang, Zhou Pan, and Lei Xie. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2508.08155} {{MSU-Bench}: Towards understanding the conversational multi-talker scenarios}.
+\newblock \emph{arXiv preprint arXiv:2508.08155}.
+
+\bibitem[{Wijngaard et~al.(2025)Wijngaard, Formisano, Dumontier, and Jitsev}]{wijngaard2025audiotoolagent}
+Gijs Wijngaard, Elia Formisano, Michel Dumontier, and Jenia Jitsev. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2510.02995} {Audiotoolagent: An agentic framework for audio-language models}.
+\newblock \emph{arXiv preprint arXiv:2510.02995}.
+
+\bibitem[{Wu et~al.(2025)Wu, Yan, Hu, Yi, Feng, Tian, Shen, Yu, Zhang, Li et~al.}]{wu2025step}
+Boyong Wu, Chao Yan, Chen Hu, Cheng Yi, Chengli Feng, Fei Tian, Feiyu Shen, Gang Yu, Haoyang Zhang, Jingbei Li, and 1 others. 2025.
+\newblock Step-audio 2 technical report.
+\newblock \emph{arXiv preprint arXiv:2507.16632}.
+
+\bibitem[{Xiong et~al.(2025)Xiong, Cai, Li, Yuan, and Wang}]{xiong2025thinkingwithsound}
+Zhen Xiong, Yujun Cai, Zhecheng Li, Junsong Yuan, and Yiwei Wang. 2025.
+\newblock \href {https://doi.org/10.48550/arXiv.2509.21749} {Thinking with sound: Audio chain-of-thought enables multimodal reasoning in large audio-language models}.
+\newblock \emph{arXiv preprint arXiv:2509.21749}.
+
+\bibitem[{Xu et~al.(2025{\natexlab{a}})Xu, Guo, Hu, Chu, Wang, He, Wang, Shi, He, Zhu et~al.}]{xu2025qwen3}
+Jin Xu, Zhifang Guo, Hangrui Hu, Yunfei Chu, Xiong Wang, Jinzheng He, Yuxuan Wang, Xian Shi, Ting He, Xinfa Zhu, and 1 others. 2025{\natexlab{a}}.
+\newblock Qwen3-omni technical report.
+\newblock \emph{arXiv preprint arXiv:2509.17765}.
+
+\bibitem[{Xu et~al.(2025{\natexlab{b}})Xu, Xie, Tang, and Hu}]{xu2025fireredasr}
+Kai-Tuo Xu, Feng-Long Xie, Xu~Tang, and Yao Hu. 2025{\natexlab{b}}.
+\newblock \href {https://doi.org/10.48550/arXiv.2501.14350} {Fireredasr: Open-source industrial-grade mandarin speech recognition models from encoder-decoder to llm integration}.
+\newblock \emph{arXiv preprint arXiv:2501.14350}.
+
+\bibitem[{Xu et~al.(2026)Xu, Jia, Huang, Chen, Li, Liu, Xie, Tang, and Hu}]{xu2026fireredasr2s}
+Kaituo Xu, Yan Jia, Kai Huang, Junjie Chen, Wenpeng Li, Kun Liu, Feng-Long Xie, Xu~Tang, and Yao Hu. 2026.
+\newblock \href {https://doi.org/10.48550/arXiv.2603.10420} {Fireredasr2s: A state-of-the-art industrial-grade all-in-one automatic speech recognition system}.
+\newblock \emph{arXiv preprint arXiv:2603.10420}.
+
+\bibitem[{Yang et~al.(2024)Yang, Xu, Liu, Chu, Jiang, Zhou, Leng, Lv, Zhao, Zhou, and Zhou}]{yang2024airbench}
+Qian Yang, Jin Xu, Wenrui Liu, Yunfei Chu, Ziyue Jiang, Xiaohuan Zhou, Yichong Leng, Yuanjun Lv, Zhou Zhao, Chang Zhou, and Jingren Zhou. 2024.
+\newblock \href {https://doi.org/10.48550/arXiv.2402.07729} {{AIR-Bench}: Benchmarking large audio-language models via generative comprehension}.
+\newblock \emph{arXiv preprint arXiv:2402.07729}.
+
+\bibitem[{Yao et~al.(2022)Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao}]{yao2022react}
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, and Yuan Cao. 2022.
+\newblock \href {https://doi.org/10.48550/arXiv.2210.03629} {{ReAct}: Synergizing reasoning and acting in language models}.
+\newblock \emph{arXiv preprint arXiv:2210.03629}.
+
+\bibitem[{Zhang et~al.(2025)Zhang, Wang, Xue, Fang, Zhao, Ma, Ren, Liu, Guo, Zhuang et~al.}]{zhang2025mimo}
+Dong Zhang, Gang Wang, Jinlong Xue, Kai Fang, Liang Zhao, Rui Ma, Shuhuai Ren, Shuo Liu, Tao Guo, Weiji Zhuang, and 1 others. 2025.
+\newblock Mimo-audio: Audio language models are few-shot learners.
+\newblock \emph{arXiv preprint arXiv:2512.23808}.
+
+\end{thebibliography}
