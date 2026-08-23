@@ -107,7 +107,7 @@ re-listening 50/999，for 64 re-listens in total.这和re-listening的角色是�
 
 ## 三、工程阅读和复现情况
 
-我已经熟悉了这个工程的数据流流向，对关键逻辑精读了代码。我在windows wsl2 ubuntu 26.04+rtx 5080 laptop上跑通了audio mind。我拉取了我对官方仓库的fork：https://github.com/ZHYsfl/Audio-Mind，完全配置好了Audio Mind所需的环境，并且稍微改动以支持blackwell。小量复现用的是阿里云百炼的API（frontend `qwen3.5-omni-plus`，planner `qwen3.5-plus`），与论文的Gemini系配置不同，跑分仅作参考。
+我已经熟悉了这个工程的数据流流向，对关键逻辑精读了代码。我在windows wsl2 ubuntu 26.04+rtx 5080 laptop上跑通了audio mind。我拉取了我对官方仓库的fork：https://github.com/ZHYsfl/Audio-Mind，完全配置好了Audio Mind所需的环境，并且稍微改动以支持blackwell。小量复现两个Bench都用的是阿里云百炼的API（frontend `qwen3.5-omni-plus`，planner `qwen3.5-plus`），与论文的MSU Bench使用Gemini系配置不同，跑分仅作参考。
 
 我在MMAR上小量跑了10个task，跑分如下：
 
