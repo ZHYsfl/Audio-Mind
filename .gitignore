@@ -118,3 +118,5 @@ benchmark_meta/
 reasoning_quality_evaluation/
 
 .uv/
+
+log/
