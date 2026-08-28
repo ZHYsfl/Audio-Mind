@@ -1,0 +1,9 @@
+{
+  "name": "yt-dlp-tool-vendor",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Vendored Node dependencies for the yt_dlp catalog tool. Install with setup.sh.",
+  "dependencies": {
+    "@kevinwatt/yt-dlp-mcp": "0.10.0"
+  }
+}

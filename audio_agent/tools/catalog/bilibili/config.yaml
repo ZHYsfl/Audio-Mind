@@ -1,0 +1,66 @@
+name: bilibili
+description: "Bilibili MCP proxy - search videos/creators, read subtitles (manual CC + Bilibili AI subtitles) or transcribe via local ASR, read comments/chapters, browse favorites and creator content. Backed by the vendored Node server @xzxzzx/bilibili-mcp."
+
+server:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  env: {}
+  resources:
+    memory_gb: 1
+    gpu: false
+
+capabilities:
+  tools:
+    - name: search_bilibili_videos
+      description: "Search Bilibili videos by topic; returns ranked candidates with title, uploader, duration, BVID"
+      output_type: text
+    - name: search_bilibili_creators
+      description: "Search Bilibili uploaders (UP主) by name or keyword"
+      output_type: text
+    - name: get_video_info
+      description: "Video metadata: title, uploader, play count, multi-part structure"
+      output_type: text
+    - name: get_video_metadata
+      description: "Video metadata for a given BVID/URL"
+      output_type: text
+    - name: get_video_transcript
+      description: "Full subtitle text with timestamps; falls back to local ASR for videos without subtitles when installed"
+      output_type: text
+    - name: get_video_chapters
+      description: "Chapter markers of a video"
+      output_type: text
+    - name: get_video_comments
+      description: "Comments and replies by hotness or time; timestamped comments are prioritized"
+      output_type: text
+    - name: get_bilibili_creator_content
+      description: "Creator profile, videos, collections, series and recent dynamics"
+      output_type: text
+    - name: list_bilibili_favorite_videos
+      description: "Page through the logged-in account's favorite folders"
+      output_type: text
+    - name: check_bilibili_credentials
+      description: "Check whether Bilibili credentials are configured and logged in"
+      output_type: text
+    - name: get_credential_setup_instructions
+      description: "Instructions for the user to configure credentials (agent must never handle cookie values)"
+      output_type: text
+    - name: check_mcp_update
+      description: "Check for upstream MCP server updates"
+      output_type: text
+
+notes: |
+  Acquisition-oriented tool (channel: Bilibili).
+
+  Credentials: most read APIs require Bilibili cookies. The user must run
+  `node node_modules/@xzxzzx/bilibili-mcp/dist/cli.js setup` themselves in
+  a local terminal (hidden prompt, then `check` to verify). Never paste
+  cookie values into agent chats or config files.
+
+  Subtitle sources: manual CC subtitles and Bilibili AI subtitles
+  (ai-zh / ai-en). For videos without any subtitles, the upstream server
+  can transcribe with a local faster-whisper model (optional install
+  during setup; see its README).
+
+  To actually download audio/video from Bilibili, use the yt_dlp tool.
+
+  ToS note: platform content access is gray-area; academic use only.

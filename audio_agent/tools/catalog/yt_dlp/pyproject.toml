@@ -1,0 +1,19 @@
+[project]
+name = "yt-dlp-tool"
+version = "1.0.0"
+description = "yt-dlp MCP proxy tool: search/download audio & video from YouTube and 1000+ sites"
+requires-python = ">=3.11"
+authors = [
+    {name = "Audio Agent", email = "audio-agent@example.com"}
+]
+
+# The proxy itself is stdlib-only; the actual server is the vendored
+# Node package @kevinwatt/yt-dlp-mcp (see package.json / setup.sh).
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["server"]

@@ -1,0 +1,76 @@
+name: yt_dlp
+description: "yt-dlp MCP proxy - search and download audio/video from YouTube and 1000+ sites (Bilibili, SoundCloud, TikTok, X, ...), plus subtitles, transcripts, metadata and comments. Backed by the vendored Node server @kevinwatt/yt-dlp-mcp."
+
+server:
+  command: [".venv/bin/python", "server.py"]
+  working_dir: "."
+  env:
+    # Bilibili requires login cookies for most formats (otherwise HTTP 412).
+    # Generated locally from bilibili-mcp's saved config; contains secrets, never commit it.
+    YTDLP_COOKIES_FILE: "/home/zane/.config/yt-dlp/bilibili_cookies.txt"
+  resources:
+    memory_gb: 1
+    gpu: false
+
+capabilities:
+  tools:
+    - name: ytdlp_search_videos
+      description: "Search YouTube videos by keywords with pagination and upload-date filtering"
+      output_type: text
+    - name: ytdlp_list_subtitle_languages
+      description: "List all available subtitle languages and formats for a video"
+      output_type: text
+    - name: ytdlp_download_video_subtitles
+      description: "Download video subtitles/captions in VTT format"
+      output_type: text
+    - name: ytdlp_download_video
+      description: "Download video file (supports quality selection and time-range trimming). REQUIRES extra argument 'download_dir' (absolute path, enforced by the proxy)"
+      output_type: video_file
+    - name: ytdlp_download_audio
+      description: "Extract and download audio track (m4a/mp3) in best quality. REQUIRES extra argument 'download_dir' (absolute path, enforced by the proxy)"
+      output_type: audio_file
+    - name: ytdlp_download_transcript
+      description: "Generate clean plain-text transcript from video subtitles"
+      output_type: text
+    - name: ytdlp_get_video_metadata
+      description: "Comprehensive video metadata in JSON without downloading content"
+      output_type: text
+    - name: ytdlp_get_video_metadata_summary
+      description: "Human-readable summary of key video information"
+      output_type: text
+    - name: ytdlp_get_video_comments
+      description: "Extract comments from a video (JSON or Markdown)"
+      output_type: text
+    - name: ytdlp_get_video_comments_summary
+      description: "Human-readable summary of video comments"
+      output_type: text
+
+notes: |
+  Acquisition-oriented tool (channel: YouTube/Bilibili/X and other video sites).
+
+  Dependencies are NOT Python packages: the proxy spawns the vendored Node
+  server (package.json, installed by setup.sh) and shells out to yt-dlp.
+  Host prerequisites: node, yt-dlp (uv tool install yt-dlp), deno
+  (required by yt-dlp 2026+ for YouTube), ffmpeg.
+
+  Downloads: ytdlp_download_audio / ytdlp_download_video REQUIRE a
+  `download_dir` argument (absolute path) - the proxy refuses the call
+  without it, downloads into an internal staging dir
+  (<repo>/downloads/.staging, overridable via $YTDLP_STAGING_DIR), then
+  moves the finished file into `download_dir`. There is intentionally no
+  default destination.
+  Time-range trimming (start/end timestamps) is supported by the download
+  tools via yt-dlp --download-sections and requires ffmpeg.
+
+  Known upstream quirks (do not "fix" by accident):
+  - ytdlp_download_video builds its output template as `%(title)s [id] ts.ext`;
+    with long CJK titles this exceeds the 255-byte filename limit
+    (ffmpeg ENAMETOOLONG). setup.sh patches the vendored templates to
+    `%(title).50s` after every npm install - keep that patch step.
+  - For non-YouTube sites the "480p" resolution maps to a format selector
+    that fails on Bilibili; use "best" (default) or omit the parameter.
+  - ytdlp_download_audio has no trim parameters; trim after download with
+    the ffmpeg tool, or use ytdlp_download_video with startTime/endTime.
+
+  ToS note: downloading from these platforms is a gray-area technique;
+  use for academic purposes only.

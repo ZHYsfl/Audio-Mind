@@ -1,0 +1,41 @@
+tool_id: yt_dlp
+tool_name: yt-dlp
+task_type: utility
+deployment_type: local
+
+repo:
+  url: https://github.com/kevinwatt/yt-dlp-mcp
+  commit: null  # vendored via package.json, pinned to 0.10.0
+  description: >
+    MCP server around yt-dlp: search, metadata, subtitles/transcripts,
+    comments, and audio/video download (with time-range trimming) for
+    YouTube and 1000+ other sites.
+
+weights:
+  source: none
+  local_path: null
+  required: false
+
+environment:
+  preferred_backend: uv
+  python_version: "3.11"
+  requires_gpu: false
+  system_packages:
+    - node
+    - yt-dlp
+    - deno
+    - ffmpeg
+
+entrypoints:
+  import_test: "import server"
+  load_test: "import server; assert callable(server.main)"
+  infer_test: "./test_env.sh   # MCP handshake + tools/list smoke, no network"
+
+fixture:
+  audio: null
+  task_specific: false
+
+notes: >
+  Acquisition tool, not an inference model. The Python server is a thin
+  stdio proxy around the vendored Node MCP server; validation target is
+  the MCP handshake and advertised tool list (see test_env.py).
