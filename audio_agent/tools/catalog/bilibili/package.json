@@ -1,9 +1,0 @@
-{
-  "name": "bilibili-tool-vendor",
-  "private": true,
-  "version": "1.0.0",
-  "description": "Vendored Node dependencies for the bilibili catalog tool. Install with setup.sh.",
-  "dependencies": {
-    "@xzxzzx/bilibili-mcp": "1.13.1"
-  }
-}

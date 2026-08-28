@@ -23,7 +23,6 @@ Full bootstrap (prerequisites, model downloads, troubleshooting) is in
 |---|---|---|
 | `asr_qwen3` | ASR via Qwen3-ASR-1.7B (+ optional forced alignment) | qwen3-asr, qwen3-aligner |
 | `autochord` | Coarse major/minor triad chord recognition | bundled (auto-downloaded) |
-| `bilibili` | Bilibili search, subtitles/AI subtitles (+ local ASR fallback), comments, chapters, favorites | — (needs user-run `setup` for cookies) |
 | `diarizen` | Speaker diarization (WavLM-large, CC BY-NC) | diarizen |
 | `ffmpeg` | Audio metadata, filtering, denoise, trim, resample, channel ops | — |
 | `fireredasr2s` | Mandarin/English/code-switching ASR | fireredasr |
@@ -36,7 +35,6 @@ Full bootstrap (prerequisites, model downloads, troubleshooting) is in
 | `tempo_cnn` | CNN tempo estimation with octave-ambiguity salience | bundled (auto-downloaded) |
 | `wespeaker` | Speaker verification (ResNet embeddings) | auto-downloaded on first use |
 | `whisperx` | WhisperX ASR + optional pyannote diarization | pyannote-diarization, pyannote-segmentation (HF token) |
-| `yt_dlp` | YouTube/1000+ sites search, audio/video download (time-range trim), subtitles, transcripts, comments | — (needs host `node`/`yt-dlp`/`deno`/`ffmpeg`) |
 
 ## Per-tool structure
 
